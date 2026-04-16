@@ -23,6 +23,11 @@ cd sonic-screwdriver && make install
 sonic install doom
 ```
 
+
+## Roadmap
+
+See `docs/roadmap.md` for the current milestone plan and delivery criteria.
+
 ## License
 
 MIT
