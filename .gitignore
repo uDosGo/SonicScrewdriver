@@ -5,13 +5,16 @@
 /*.dll
 /*.so
 /*.dylib
-/sonic-screwdriver/bin/
+/modules/sonic-home/bin/
 
 # Test binary
 *.test
 
 # Output of go coverage
 *.out
+coverage/
+coverage.*
+*.coverprofile
 
 # Dependency directories
 vendor/
@@ -22,6 +25,7 @@ go.work.sum
 # IDE
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
 
@@ -29,10 +33,46 @@ go.work.sum
 .DS_Store
 Thumbs.db
 
-# User data
-~/.local/share/sonic/
-~/.config/sonic/
+# Env and local config
+.env
+.env.*
+!.env.example
+*.local
+
+# Runtime, local state, and cache
+/runtime/
+/run/
+/state/
+/data/
+/cache/
+.cache/
+*.pid
+*.sock
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Sonic family local artifacts
+dist/
+bundles/
+artifacts/
+*.she
+*.sig
+manifest.dryrun.json
+
+# Local tool/user directories inside repo
+.local/
+.config/
+
+# Cursor/local workflow artifacts
+agent-transcripts/
+*.tmp
 
 # Temp
 /tmp/
 /temp/
+tmp/
+temp/

@@ -4,19 +4,19 @@ all: build test
 
 build:
 	cd code-vault && go build ./...
-	cd sonic-screwdriver && mkdir -p bin && go build -o bin/sonic cmd/sonic/main.go
+	mkdir -p bin && go build -o bin/sonic cmd/sonic/main.go
 
 test:
 	cd code-vault && go test ./...
-	cd sonic-screwdriver && go test ./...
+	go test ./...
 
 install:
-	cp sonic-screwdriver/bin/sonic /usr/local/bin/
+	cp bin/sonic /usr/local/bin/
 	sonic library update
 
 clean:
-	rm -f sonic-screwdriver/bin/sonic
-	rm -rf sonic-screwdriver/tmp/
+	rm -f bin/sonic
+	rm -rf tmp/
 
 dev:
-	cd sonic-screwdriver && go run cmd/sonic/main.go
+	go run cmd/sonic/main.go

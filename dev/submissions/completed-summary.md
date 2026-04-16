@@ -1,6 +1,6 @@
 # Completed Submission Summary
 
-This is the compact completed summary for `sonic-family`.
+This is the compact completed summary for `sonic-screwdriver`.
 
 ## Completed Families Of Work
 

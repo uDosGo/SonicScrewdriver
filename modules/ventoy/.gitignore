@@ -1,0 +1,10 @@
+# Local build outputs
+/dist/
+/build/
+/out/
+/tmp/
+
+# Runtime/log artifacts
+*.log
+*.pid
+*.tmp

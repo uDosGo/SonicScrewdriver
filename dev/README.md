@@ -1,4 +1,4 @@
-# `sonic-family` Dev Workspace
+# `sonic-screwdriver` Dev Workspace
 
 Use `dev` for compact, forward-looking repo planning and current technical notes.
 

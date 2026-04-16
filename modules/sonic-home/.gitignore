@@ -1,0 +1,27 @@
+# Build outputs
+/bin/
+/dist/
+/bundles/
+/artifacts/
+
+# Local runtime/state
+/runtime/
+/state/
+/data/
+/logs/
+*.log
+*.pid
+*.sock
+*.db
+*.sqlite
+*.sqlite3
+
+# Bundle artifacts
+*.she
+*.sig
+manifest.dryrun.json
+
+# Local env/config
+.env
+.env.*
+!.env.example
