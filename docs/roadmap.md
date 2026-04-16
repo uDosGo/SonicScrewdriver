@@ -12,6 +12,15 @@
 - Move shipped work into `dev/submissions/completed-summary.md`
 - Update this roadmap when milestone scope changes (not after every commit)
 
+## End-of-Day Update (2026-04-16)
+
+- completed repo layout flattening to single-root `sonic-screwdriver` structure
+- moved Ventoy integration under `modules/ventoy/` and aligned root build/test paths
+- added `modules/sonic-home/` bootstrap module (`pack/install/serve/verify` + `.she` draft flow)
+- added `modules/sonic-express/` bootstrap module aligned to uDos sonic-express installer standards
+- clarified docs that `sonic-screwdriver` and uHomeNest are separate projects with standards-aligned, system-local modules
+- validation pass complete: `make build`, `go test ./...`, `go test ./modules/sonic-home/...`, `go test ./modules/sonic-express/...`
+
 ## Milestone: `vA1.1.0` (Runtime + State Foundation)
 
 - implement container runtime boundary in `internal/container/`

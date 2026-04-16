@@ -10,7 +10,7 @@ Owner labels:
 - `owner/library`: manifest/index parsing and install inputs
 - `owner/state`: sqlite schema + persistence lifecycle
 - `owner/release`: Ventoy/promotion docs and release flow notes
-- `owner/packager`: sonic-home bundling/install flow
+- `owner/packager`: sonic-home + sonic-express bundling/install flow
 
 ### P0 (Must Ship This Slice)
 
@@ -61,6 +61,15 @@ Owner labels:
   - definition of done:
     - `modules/sonic-home/` tree exists with compiling Go entrypoints
     - initial manifest schema documented in `modules/sonic-home/docs/BUNDLE-FORMAT.md`
+    - `pack` command supports dry-run manifest generation path (no full payload required yet)
+    - follow-up tasks explicitly listed for signing, delta, and USB auto-install
+
+- sonic-express bootstrap (`v1.1.1` track)
+  - owner: `owner/packager`
+  - scope: scaffold `modules/sonic-express/` module with `pack/install/serve` CLI stubs aligned to uDos sonic-express installer standards
+  - definition of done:
+    - `modules/sonic-express/` tree exists with compiling Go entrypoints
+    - initial manifest schema documented in `modules/sonic-express/docs/BUNDLE-FORMAT.md`
     - `pack` command supports dry-run manifest generation path (no full payload required yet)
     - follow-up tasks explicitly listed for signing, delta, and USB auto-install
 

@@ -6,6 +6,7 @@
 /*.so
 /*.dylib
 /modules/sonic-home/bin/
+/modules/sonic-express/bin/
 
 # Test binary
 *.test

@@ -3,5 +3,6 @@ go 1.21
 use (
 	.
 	./code-vault
+	./modules/sonic-express
 	./modules/sonic-home
 )

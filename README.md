@@ -2,9 +2,9 @@
 
 Repository for sonic-screwdriver runtime/CLI with modular components under `modules/`.
 
-`sonic-screwdriver` is a separate project from uHomeNest. Both projects may carry a
-`sonic-home` module to stay standards-aligned, while implementation, runtime behavior,
-and release ownership remain independent per system.
+`sonic-screwdriver` is a separate project from uHomeNest. Both projects may carry
+`sonic-home` and/or `sonic-express` modules to stay standards-aligned, while
+implementation, runtime behavior, and release ownership remain independent per system.
 
 ## Components
 
@@ -12,6 +12,7 @@ and release ownership remain independent per system.
 |-----------|-------------|---------|
 | **core (root)** | Docker wrapper, container runtime, CLI/TUI/GUI | vA1.0.0 |
 | **code-vault** | Shared types, protocols, API contracts | vA1.0.0 |
+| **modules/sonic-express** | uDos-aligned packager and installer helper | v0.1.0-dev |
 | **modules/sonic-home** | Lite packager and installer helper | v0.1.0-dev |
 | **modules/ventoy** | Bootable USB tool (fork) | upstream + patches |
 
