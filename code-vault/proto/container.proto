@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package sonic.container.v1;
+
+option go_package = "github.com/sonic-family/code-vault/proto;containerpb";
+
+message ContainerRequest {
+	string name = 1;
+	string image = 2;
+}
+
+message ContainerResponse {
+	string id = 1;
+	string status = 2;
+}
