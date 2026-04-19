@@ -1,11 +1,14 @@
 package library
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/qri-io/jsonschema"
 	"gopkg.in/yaml.v3"
 )
 
@@ -66,21 +69,54 @@ func (m *Manager) ValidateManifest(path string) error {
 		return fmt.Errorf("failed to read manifest: %w", err)
 	}
 
-	// Simple validation - check for required fields
-	manifest := make(map[string]interface{})
-	if err := yaml.Unmarshal(data, &manifest); err != nil {
-		return fmt.Errorf("failed to parse manifest: %w", err)
+	// Parse YAML to JSON for schema validation
+	var yamlData interface{}
+	if err := yaml.Unmarshal(data, &yamlData); err != nil {
+		return fmt.Errorf("failed to parse manifest YAML: %w", err)
 	}
 
-	// Check required fields
-	if _, ok := manifest["name"]; !ok {
-		return fmt.Errorf("manifest missing required field: name")
+	// Convert to JSON for schema validation
+	jsonData, err := json.Marshal(yamlData)
+	if err != nil {
+		return fmt.Errorf("failed to convert manifest to JSON: %w", err)
 	}
-	if _, ok := manifest["version"]; !ok {
-		return fmt.Errorf("manifest missing required field: version")
+
+	// Validate against schema
+	if err := validateAgainstSchema(jsonData); err != nil {
+		return fmt.Errorf("manifest validation failed: %w", err)
 	}
 
 	log.Printf("Validated manifest: %s", path)
+	return nil
+}
+
+func validateAgainstSchema(data []byte) error {
+	// Parse the schema
+	schema := jsonschema.Schema{}
+	if err := json.Unmarshal([]byte(ManifestSchema), &schema); err != nil {
+		return fmt.Errorf("failed to parse validation schema: %w", err)
+	}
+
+	// Prepare data as interface{}
+	var dataInterface interface{}
+	if err := json.Unmarshal(data, &dataInterface); err != nil {
+		return fmt.Errorf("failed to parse manifest data: %w", err)
+	}
+
+	// Validate the data
+	ctx := context.Background()
+	state := schema.Validate(ctx, dataInterface)
+	
+	if !state.IsValid() {
+		var errorMessages []string
+		if state.Errs != nil {
+			for _, err := range *state.Errs {
+				errorMessages = append(errorMessages, err.Message)
+			}
+		}
+		return fmt.Errorf("schema validation errors: %v", errorMessages)
+	}
+
 	return nil
 }
 

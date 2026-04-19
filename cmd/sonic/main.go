@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	runtime  container.Runtime = container.DockerRuntime{}
+	runtime  container.Runtime
 	libManager *library.Manager
 	stateDB   *state.DB
 )
@@ -24,9 +24,19 @@ func main() {
 		// Continue without library for now
 	}
 
+	// Initialize Docker runtime
+	dockerRuntime, err := container.NewDockerRuntime()
+	if err != nil {
+		log.Printf("Warning: Could not initialize Docker runtime: %v", err)
+		log.Printf("Falling back to mock runtime")
+		runtime = &container.DockerRuntime{} // Fallback to mock
+	} else {
+		runtime = dockerRuntime
+		defer dockerRuntime.Close()
+	}
+
 	// Initialize state database
 	dbPath := state.GetDefaultDBPath()
-	var err error
 	stateDB, err = state.Open(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to open state database: %v", err)
