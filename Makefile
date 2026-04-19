@@ -1,4 +1,4 @@
-.PHONY: build test install clean all dev
+.PHONY: build test test-integration install clean all dev
 
 all: build test
 
@@ -9,6 +9,11 @@ build:
 test:
 	cd code-vault && go test ./...
 	go test ./...
+
+test-integration:
+	@echo "Running integration tests..."
+	@echo "Note: These tests require Docker daemon and test data"
+	cd test/integration && go test -v ./...
 
 install:
 	cp bin/sonic /usr/local/bin/
