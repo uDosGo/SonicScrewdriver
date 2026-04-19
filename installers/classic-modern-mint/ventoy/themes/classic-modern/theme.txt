@@ -1,0 +1,27 @@
+[Theme]
+Title=Classic Modern Mint
+Author=Sonic Family
+Version=1.0.0
+Description=Classic Modern style theme for Ventoy
+
+[Menu]
+Background=background.jpg
+Banner=banner.png
+Font=fonts/roboto-bold.ttf
+FontSize=24
+MenuColor=#FFFFFF
+SelMenuColor=#4CAF50
+TipColor=#BBBBBB
+
+[Control]
+Timeout=10
+DefaultSelection=Classic Modern Mint
+DisplayMode=GUI
+UEFIFirst=true
+
+[Advanced]
+VTOY_DEFAULT_IMAGE=/installers/classic-modern-mint/iso/mint.iso
+VTOY_FILENAMES=classic-modern-mint.she;*.iso;*.img
+MaxLoop=256
+Injection=auto
+ImageList=auto

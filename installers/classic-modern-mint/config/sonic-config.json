@@ -1,0 +1,80 @@
+{
+  "installer": {
+    "name": "Classic Modern Mint",
+    "version": "1.0.0",
+    "description": "Sonic Family Linux Mint with Classic Modern style",
+    "id": "com.sonic.classic-modern-mint",
+    "channel": "stable",
+    "build_date": "2026-04-20",
+    "architecture": ["amd64"],
+    "min_disk_space": "20GB",
+    "min_memory": "4GB"
+  },
+  "system": {
+    "base": "linuxmint-21.3-cinnamon",
+    "kernel": "6.5.0",
+    "desktop": "cinnamon",
+    "display_manager": "lightdm",
+    "init_system": "systemd"
+  },
+  "style": {
+    "theme": "ClassicModern",
+    "icons": "ClassicModern-Icons",
+    "cursor": "DMZ-White",
+    "fonts": "Roboto",
+    "wallpaper": "classic-modern-default.jpg",
+    "colors": {
+      "primary": "#4CAF50",
+      "secondary": "#2E7D32",
+      "accent": "#8BC34A",
+      "background": "#F5F5F5",
+      "text": "#212121"
+    }
+  },
+  "packages": {
+    "include": [
+      "cinnamon",
+      "nemo",
+      "firefox",
+      "thunderbird",
+      "libreoffice",
+      "gimp",
+      "vlc",
+      "timeshift",
+      "mintupdate",
+      "mintinstall",
+      "mintsources",
+      "mintstick",
+      "celluloid",
+      "xreader",
+      "xed",
+      "xviewer",
+      "blueberry",
+      "warpinator"
+    ],
+    "exclude": [
+      "hexchat",
+      "pidgin",
+      "transmission-gtk",
+      "rhythmbox"
+    ],
+    "additional": [
+      "sonic-screwdriver",
+      "ventoy",
+      "udosconnect",
+      "uhomenest"
+    ]
+  },
+  "scripts": {
+    "pre_install": "scripts/pre-install.sh",
+    "post_install": "scripts/post-install.sh",
+    "ventoy_hook": "scripts/ventoy-hook.sh"
+  },
+  "ventoy": {
+    "version": "1.0.93",
+    "plugins": ["auto_install", "persistent", "theme"],
+    "bundle_path": "installers/classic-modern-mint.she",
+    "usb_prep": true,
+    "qemu_test": true
+  }
+}

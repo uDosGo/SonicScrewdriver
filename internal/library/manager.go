@@ -106,7 +106,7 @@ func validateAgainstSchema(data []byte) error {
 	// Validate the data
 	ctx := context.Background()
 	state := schema.Validate(ctx, dataInterface)
-	
+
 	if !state.IsValid() {
 		var errorMessages []string
 		if state.Errs != nil {

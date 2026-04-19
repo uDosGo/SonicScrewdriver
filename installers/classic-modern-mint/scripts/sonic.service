@@ -1,0 +1,14 @@
+[Unit]
+Description=Sonic Screwdriver Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/sonic serve
+Restart=on-failure
+RestartSec=5s
+Environment=SONIC_CONFIG=/etc/sonic/config.json
+
+[Install]
+WantedBy=multi-user.target

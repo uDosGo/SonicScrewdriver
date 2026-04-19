@@ -104,7 +104,7 @@ func (db *DB) SetInstalled(name, version string) error {
 		version = excluded.version,
 		installed_at = CURRENT_TIMESTAMP
 	`
-	
+
 	_, err = tx.Exec(query, name, version)
 	if err != nil {
 		return fmt.Errorf("failed to set installed: %w", err)
@@ -164,7 +164,7 @@ func (db *DB) Remove(name string) error {
 		}
 		return fmt.Errorf("failed to determine current state: %w", err)
 	}
-	
+
 	_, err = tx.Exec(
 		"INSERT INTO state_transitions (installation_id, from_state, to_state) VALUES ((SELECT id FROM installations WHERE name = ?), ?, 'uninstalled')",
 		name, fromState,
