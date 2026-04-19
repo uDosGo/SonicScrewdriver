@@ -398,6 +398,7 @@ $EDITOR dev/active/completed-summary.md
 
 ### Documentation
 
+- **Complete Compendium**: `dev/COMPLETE-DEV-FLOW-COMPENDIUM.md` — Master document with all briefs
 - **Dev Flow**: `dev/README.md`
 - **Roadmap**: `docs/roadmap.md`
 - **Promotion**: `docs/promotion.md`

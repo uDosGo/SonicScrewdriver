@@ -2,6 +2,8 @@
 
 The `dev` directory implements an opinionated, lightweight development flow for the Sonic Family.
 
+**📚 [Complete Dev Flow Compendium](COMPLETE-DEV-FLOW-COMPENDIUM.md)** — Master document containing all briefs, workflows, and processes in one unified system.
+
 ## Core Principles
 
 - **Active work stays visible** - current execution lives in `dev/active/`
