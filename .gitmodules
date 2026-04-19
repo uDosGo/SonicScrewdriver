@@ -1,0 +1,3 @@
+[submodule "Ventoy"]
+	path = Ventoy
+	url = https://github.com/fredporter/Ventoy

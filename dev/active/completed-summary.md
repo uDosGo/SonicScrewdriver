@@ -7,6 +7,11 @@ This is the compact completed summary for `sonic-screwdriver`.
 - monorepo initialization and workspace wiring
 - baseline Go modules and shared contracts scaffold
 - CLI skeleton and curated library manifest placeholders
+- dev flow upgrade with Ventoy integration
+  - new development workflow structure implemented
+  - Ventoy submodule integrated into build and promotion workflows
+  - comprehensive documentation for Ventoy integration
+  - validation checklists and workflow definitions
 
 ## Rule
 

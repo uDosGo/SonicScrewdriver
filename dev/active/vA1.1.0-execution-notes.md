@@ -40,6 +40,7 @@ Date: 2026-04-16
 - ship minimum skeletons for both tracks:
   - `v1.1.0`: integration-manager baseline contracts
   - `v1.1.1`: sonic-home module scaffold + CLI entrypoints
+- integrate Ventoy submodule into new dev flow
 
 ### Plan for today
 
@@ -117,8 +118,9 @@ Date: 2026-04-16
 - runtime: unchanged today
 - library: unchanged today
 - state: unchanged today
-- release: unchanged today
+- release: Ventoy integration brief created, promotion flow documented
 - packager: step-3 baseline complete; ready for step 4 (sign/verify keys + docker/venv component modes)
+- dev-flow: new structure implemented, Ventoy integrated into workflows
 
 ## Day 2
 

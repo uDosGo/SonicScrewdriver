@@ -73,6 +73,18 @@ Owner labels:
     - `pack` command supports dry-run manifest generation path (no full payload required yet)
     - follow-up tasks explicitly listed for signing, delta, and USB auto-install
 
+- dev flow upgrade and Ventoy integration
+  - owner: `owner/release`
+  - scope: upgrade development workflow and integrate Ventoy submodule
+  - definition of done:
+    - new dev flow structure implemented (`dev/active/`, `dev/integration/`, `dev/process/`, `dev/compost/`)
+    - Ventoy integration brief created in `dev/integration/VENTOY-INTEGRATION-BRIEF.md`
+    - promotion flow documented in `docs/promotion.md`
+    - Ventoy validation checklist created in `dev/process/checklists/ventoy-validation.md`
+    - Ventoy integration workflow documented in `dev/process/workflows/ventoy-integration-workflow.md`
+    - old dev docs composted to `dev/compost/`
+    - active development files updated to reflect new workflow
+
 ## Tracking Rhythm
 
 - day 1-2: finalize interfaces and schema choices
