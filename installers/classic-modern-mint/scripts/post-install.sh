@@ -40,6 +40,11 @@ install_sonic_tools() {
     sudo mkdir -p /etc/sonic
     sudo cp config/sonic-config.json /etc/sonic/config.json
     
+    # Set up Go environment in uDos vendor
+    sudo mkdir -p /home/$USER/uDos/vendor/go
+    echo "export GOPATH=/home/$USER/uDos/vendor/go" | sudo tee -a /etc/profile.d/sonic-go.sh
+    echo "export PATH=$PATH:$GOPATH/bin" | sudo tee -a /etc/profile.d/sonic-go.sh
+    
     # Set up systemd service
     sudo cp scripts/sonic.service /etc/systemd/system/
     sudo systemctl enable sonic.service

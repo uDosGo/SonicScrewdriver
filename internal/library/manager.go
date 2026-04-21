@@ -125,5 +125,10 @@ func GetDefaultIndexPath() string {
 	if err != nil {
 		return "./library-index.yaml"
 	}
+	// Use uDos vendor directory for games
+	udosVendorPath := filepath.Join(homeDir, "uDos", "vendor", "games")
+	if _, err := os.Stat(udosVendorPath); err == nil {
+		return filepath.Join(udosVendorPath, "library-index.yaml")
+	}
 	return filepath.Join(homeDir, ".sonic", "library-index.yaml")
 }
