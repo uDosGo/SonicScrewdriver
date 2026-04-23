@@ -1,0 +1,43 @@
+name: base-node
+version: 2.1.0
+description: Node.js/TypeScript foundation layer
+author: Sonic Family
+
+dependencies: []
+
+flavours:
+  - name: node20
+    variables:
+      NODE_VERSION: 20.20.0
+      NPM_VERSION: 10.8.1
+    files:
+      - .nvmrc
+      - package.json
+
+files:
+  - source: .eslintrc.json
+    target: .eslintrc.json
+    merge: replace
+  - source: .prettierrc
+    target: .prettierrc
+    merge: replace
+  - source: tsconfig.json.template
+    target: tsconfig.json
+    template: true
+  - source: package.json.template
+    target: package.json
+    template: true
+  - source: README.md.template
+    target: README.md
+    template: true
+
+scripts:
+  post_install: |
+    npm install
+    npm run build
+
+compatibility:
+  conflicts:
+    - base-go
+    - base-python
+    - base-rust

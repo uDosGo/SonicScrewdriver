@@ -1,0 +1,43 @@
+# {{{name}}}
+
+## 📋 Description
+
+{{{description}}}
+
+## 🚀 Getting Started
+
+### Installation
+
+```bash
+npm install {{{name}}}
+```
+
+### Usage
+
+```typescript
+import { {{{Name}}} } from '{{{name}}}';
+
+const instance = new {{{Name}}}();
+// Use the instance
+```
+
+## 📚 API Documentation
+
+### {{{Name}}}
+
+**Constructor**
+```typescript
+constructor(config?: Config)
+```
+
+**Methods**
+- `method1()`: Description
+- `method2()`: Description
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## 📝 License
+
+MIT

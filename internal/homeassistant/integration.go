@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -351,7 +350,7 @@ func GetDefaultConfig(baseURL, apiToken string) HAConfig {
 // CheckDependencies checks if required dependencies are installed
 func CheckDependencies() ([]string, []string) {
 	required := []string{"curl", "jq", "sqlite3"}
-	httpClient := &http.Client{Timeout: 10 * time.Second}
+
 	
 	var installed []string
 	var missing []string

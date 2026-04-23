@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/sonic-family/sonic-screwdriver/internal/classicmodern"
@@ -14,6 +15,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -423,22 +425,6 @@ func main() {
 			os.Exit(1)
 		}
 		handleVentoyCommand(os.Args[2:])
-	case "ha", "homeassistant":
-		if len(os.Args) < 3 {
-			fmt.Println("Usage: sonic ha <command> [args]")
-			fmt.Println("Commands:")
-			fmt.Println("  setup <url> <token>                  - Setup Home Assistant integration")
-			fmt.Println("  configure                            - Configure HA integration")
-			fmt.Println("  status                               - Show HA status")
-			fmt.Println("  info                                 - Show HA instance info")
-			fmt.Println("  embed <output.html>                  - Generate embed HTML file")
-			fmt.Println("  kiosk enable|disable                 - Enable/disable kiosk mode")
-			fmt.Println("  refresh <minutes>                    - Set refresh rate")
-			fmt.Println("  version                              - Get HA version")
-			fmt.Println("  check                                - Check HA connection")
-			os.Exit(1)
-		}
-		handleHACommand(os.Args[2:])
 	default:
 		printHelp()
 	}
@@ -1739,5 +1725,4 @@ Commands:
 Flags:
   --help, -h               Show this help
   --version, -v            Show version`)
-}
 }

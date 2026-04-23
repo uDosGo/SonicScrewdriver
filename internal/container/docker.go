@@ -23,7 +23,12 @@ func NewDockerRuntime() (*DockerRuntime, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
-	return &DockerRuntime{client: cli}, nil
+	runtime := &DockerRuntime{client: cli}
+	
+	// Start health monitoring for all Sonic containers
+	go runtime.StartHealthMonitoring()
+	
+	return runtime, nil
 }
 
 func (d *DockerRuntime) Start(name string) error {
