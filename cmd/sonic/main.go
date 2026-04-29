@@ -14,18 +14,20 @@ import (
 	"github.com/sonic-family/sonic-screwdriver/modules/ventoy"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 var (
-	runtime      container.Runtime
-	libManager   *library.Manager
-	stateDB      *state.DB
-	secretStore  *secrets.SecretStore
-	nodeRegistry *secrets.NodeRegistry
-	proxyServer  *secrets.ProxyServer
-	haIntegration *homeassistant.HAIntegration
+	containerRuntime container.Runtime
+	libManager        *library.Manager
+	stateDB           *state.DB
+	secretStore       *secrets.SecretStore
+	nodeRegistry      *secrets.NodeRegistry
+	proxyServer       *secrets.ProxyServer
+	haIntegration     *homeassistant.HAIntegration
 )
 
 func main() {
@@ -42,9 +44,9 @@ func main() {
 	if err != nil {
 		log.Printf("Warning: Could not initialize Docker runtime: %v", err)
 		log.Printf("Falling back to mock runtime")
-		runtime = &container.DockerRuntime{} // Fallback to mock
+		containerRuntime = &container.DockerRuntime{} // Fallback to mock
 	} else {
-		runtime = dockerRuntime
+		containerRuntime = dockerRuntime
 		defer dockerRuntime.Close()
 	}
 
@@ -139,7 +141,7 @@ func main() {
 			log.Fatalf("Failed to update state: %v", err)
 		}
 
-		err := runtime.Start(gameName)
+		err := containerRuntime.Start(gameName)
 		if err != nil {
 			// Rollback state on failure
 			stateDB.SetRunning(gameName, false)
@@ -153,7 +155,7 @@ func main() {
 		}
 		gameName := os.Args[2]
 
-		err := runtime.Stop(gameName)
+		err := containerRuntime.Stop(gameName)
 		if err != nil {
 			log.Fatalf("Failed to stop: %v", err)
 		}
@@ -195,7 +197,7 @@ func main() {
 			log.Fatalf("Failed to update state: %v", err)
 		}
 
-		err := runtime.Remove(gameName)
+		err := containerRuntime.Remove(gameName)
 		if err != nil {
 			log.Fatalf("Failed to remove: %v", err)
 		}
@@ -242,7 +244,7 @@ func main() {
 				os.Exit(1)
 			}
 			if os.Args[2] == "--all" {
-				healthStatuses, err := runtime.GetAllContainerHealth()
+				healthStatuses, err := containerRuntime.GetAllContainerHealth()
 				if err != nil {
 					log.Fatalf("Failed to get container health: %v", err)
 				}
@@ -264,7 +266,7 @@ func main() {
 				}
 			} else {
 				gameName := os.Args[2]
-				status, err := runtime.CheckContainerHealth(gameName)
+				status, err := containerRuntime.CheckContainerHealth(gameName)
 				if err != nil {
 					log.Fatalf("Failed to check health: %v", err)
 				}
@@ -286,7 +288,7 @@ func main() {
 				os.Exit(1)
 			}
 			if os.Args[2] == "--all" {
-				healthStatuses, err := runtime.GetAllContainerHealth()
+				healthStatuses, err := containerRuntime.GetAllContainerHealth()
 				if err != nil {
 					log.Fatalf("Failed to get container health: %v", err)
 				}
@@ -294,7 +296,7 @@ func main() {
 				for _, status := range healthStatuses {
 					if !status.Healthy {
 						fmt.Printf("Attempting to repair %s...\n", status.Name)
-						err := runtime.RestartContainer(status.Name)
+						err := containerRuntime.RestartContainer(status.Name)
 						if err != nil {
 							log.Printf("Failed to repair %s: %v", status.Name, err)
 						} else {
@@ -311,7 +313,7 @@ func main() {
 			} else {
 				gameName := os.Args[2]
 				fmt.Printf("Attempting to repair %s...\n", gameName)
-				status, err := runtime.CheckContainerHealth(gameName)
+				status, err := containerRuntime.CheckContainerHealth(gameName)
 				if err != nil {
 					log.Fatalf("Failed to check health: %v", err)
 				}
@@ -319,7 +321,7 @@ func main() {
 					fmt.Printf("%s is already healthy\n", gameName)
 					return
 				}
-				err = runtime.RestartContainer(gameName)
+				err = containerRuntime.RestartContainer(gameName)
 				if err != nil {
 					log.Fatalf("Failed to repair: %v", err)
 				}
@@ -425,6 +427,16 @@ func main() {
 			os.Exit(1)
 		}
 		handleVentoyCommand(os.Args[2:])
+	case "system":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: sonic system <command>")
+			fmt.Println("Commands:")
+			fmt.Println("  check       - Check system compatibility")
+			fmt.Println("  info        - Show system information")
+			fmt.Println("  resources   - Show system resources")
+			os.Exit(1)
+		}
+		handleSystemCommand(os.Args[2:])
 	default:
 		printHelp()
 	}
@@ -1721,8 +1733,207 @@ Commands:
   sonic ventoy package    Create Ventoy installer bundle
   sonic ventoy validate    Validate Ventoy bundle
   sonic ventoy info        Show bundle information
+  
+  # System
+  sonic system check       Check system compatibility
+  sonic system info        Show system information
+  sonic system resources   Show system resources
 
 Flags:
   --help, -h               Show this help
   --version, -v            Show version`)
+}
+
+func handleSystemCommand(args []string) {
+	if len(args) == 0 {
+		fmt.Println("Error: system command required")
+		os.Exit(1)
+	}
+
+	command := args[0]
+	switch command {
+	case "check":
+		performSystemChecks()
+	case "info":
+		showSystemInfo()
+	case "resources":
+		showSystemResources()
+	default:
+		fmt.Printf("Error: unknown system command: %s\n", command)
+		os.Exit(1)
+	}
+}
+
+func performSystemChecks() {
+	fmt.Println("🔍 Performing system compatibility checks...")
+	
+	// Check OS
+	osInfo, err := getOSInfo()
+	if err != nil {
+		log.Printf("Warning: Could not determine OS: %v", err)
+		return
+	}
+	
+	fmt.Printf("  OS: %s %s\n", osInfo.Name, osInfo.Version)
+	
+	// Check architecture
+	arch := "unknown"
+	if runtime.GOOS == "linux" {
+		out, _ := exec.Command("uname", "-m").Output()
+		arch = strings.TrimSpace(string(out))
+	}
+	fmt.Printf("  Architecture: %s\n", arch)
+	
+	// Check required dependencies
+	checkDependencies()
+	
+	// Check Docker
+	checkDocker()
+	
+	// Check Go version
+	checkGoVersion()
+	
+	fmt.Println("✅ System checks complete")
+}
+
+func getOSInfo() (*SystemInfo, error) {
+	// Read /etc/os-release for Linux
+	data, err := os.ReadFile("/etc/os-release")
+	if err != nil {
+		return nil, fmt.Errorf("could not read OS info: %v", err)
+	}
+	
+	info := &SystemInfo{}
+	lines := strings.Split(string(data), "\n")
+	
+	for _, line := range lines {
+		if strings.HasPrefix(line, "NAME=") {
+			info.Name = strings.Trim(strings.TrimPrefix(line, "NAME="), `"`)
+		} else if strings.HasPrefix(line, "VERSION_ID=") {
+			info.Version = strings.Trim(strings.TrimPrefix(line, "VERSION_ID="), `"`)
+		}
+	}
+	
+	if info.Name == "" || info.Version == "" {
+		return nil, fmt.Errorf("could not parse OS info")
+	}
+	
+	return info, nil
+}
+
+func checkDependencies() {
+	fmt.Println("  Checking dependencies...")
+	
+	dependencies := []string{"git", "make", "curl", "g++", "docker"}
+	missing := []string{}
+	
+	for _, dep := range dependencies {
+		if _, err := exec.LookPath(dep); err != nil {
+			missing = append(missing, dep)
+		}
+	}
+	
+	if len(missing) > 0 {
+		log.Printf("  ⚠️  Missing dependencies: %v", missing)
+	} else {
+		fmt.Println("  ✓ All dependencies found")
+	}
+}
+
+func checkDocker() {
+	fmt.Println("  Checking Docker...")
+	
+	// Check if Docker is installed
+	if _, err := exec.LookPath("docker"); err != nil {
+		log.Println("  ⚠️  Docker not found")
+		return
+	}
+	
+	// Check if Docker daemon is running
+	if _, err := exec.Command("docker", "info").Output(); err != nil {
+		log.Println("  ⚠️  Docker daemon not running")
+		return
+	}
+	
+	fmt.Println("  ✓ Docker is running")
+}
+
+func checkGoVersion() {
+	fmt.Println("  Checking Go version...")
+	
+	cmd := exec.Command("go", "version")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("  ⚠️  Go not found: %v", err)
+		return
+	}
+	
+	versionStr := string(output)
+	fmt.Printf("  ✓ Go: %s", strings.TrimSpace(versionStr))
+}
+
+func showSystemInfo() {
+	fmt.Println("📋 System Information")
+	fmt.Println("======================")
+	
+	osInfo, err := getOSInfo()
+	if err != nil {
+		log.Printf("Warning: Could not get OS info: %v\n", err)
+		return
+	}
+	
+	fmt.Printf("OS: %s %s\n", osInfo.Name, osInfo.Version)
+	
+	arch := "unknown"
+	if runtime.GOOS == "linux" {
+		cmd := exec.Command("uname", "-m")
+		output, _ := cmd.Output()
+		arch = strings.TrimSpace(string(output))
+	}
+	fmt.Printf("Architecture: %s\n", arch)
+	
+	// Show Go version
+	cmd := exec.Command("go", "version")
+	output, err := cmd.Output()
+	if err == nil {
+		fmt.Printf("Go: %s", strings.TrimSpace(string(output)))
+	}
+	
+	// Show Docker version
+	if _, err := exec.LookPath("docker"); err == nil {
+		cmd := exec.Command("docker", "--version")
+		output, err := cmd.Output()
+		if err == nil {
+			fmt.Printf("Docker: %s", strings.TrimSpace(string(output)))
+		}
+	}
+}
+
+func showSystemResources() {
+	fmt.Println("💻 System Resources")
+	fmt.Println("===================")
+	
+	// Get CPU info
+	fmt.Printf("CPU: %d cores\n", runtime.NumCPU())
+	
+	// Get memory info
+	if runtime.GOOS == "linux" {
+		data, err := os.ReadFile("/proc/meminfo")
+		if err == nil {
+			lines := strings.Split(string(data), "\n")
+			for _, line := range lines {
+				if strings.HasPrefix(line, "MemTotal:") {
+					var total uint64
+					fmt.Sscanf(line, "MemTotal: %d kB", &total)
+					fmt.Printf("Memory: %.2f GB total\n", float64(total)/1024/1024)
+					break
+				}
+			}
+		}
+	}
+}
+
+type SystemInfo struct {
+	Name    string
+	Version string
 }
