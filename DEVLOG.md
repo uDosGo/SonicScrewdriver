@@ -1,7 +1,9 @@
 # Sonic-Screwdriver DEVLOG
 
-> **Concises, non-verbose, feed-styled development log**  
+> **TARDIS Mission Log**  
+> *Concise, non-verbose, feed-styled development log*  
 > *Published/Released updates only, in order of application*  
+> *TARDIS Narrator: LIGHT intensity*  
 > *Designed by Wizard. Built by Vibe.*
 
 ---
@@ -47,3 +49,11 @@
 - ✅ Uses ~/.local/bin for user binaries
 - ⚠️  ~/.compost integration: Pending
 - ⚠️  ~/Vault support: Pending
+
+---
+
+### TARDIS Narrator Intensity: LIGHT
+
+LIGHT intensity applies themed naming to documentation headers only. All technical content, usage instructions, and code remain unchanged for public clarity.
+
+*Designed by Wizard. Built by Vibe.*
