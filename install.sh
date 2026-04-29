@@ -454,7 +454,7 @@ devstudio:
 ENDYAML
     
     # Create README
-    cat > "$HOME/Code/DevStudio/Projects/SonicScrewdriver/README.md" << EOF
+    cat > "$HOME/Code/DevStudio/Projects/SonicScrewdriver/README.md" << 'ENDREADME'
 # Sonic-Screwdriver DevStudio Project
 
 Sonic-Screwdriver integration with DevStudio.
@@ -467,7 +467,7 @@ Sonic-Screwdriver integration with DevStudio.
 cd ~/Code/DevStudio
 ./install.sh
 ```
-EOF
+ENDREADME
     
     sonic_action "DevStudio integration complete"
     return 0
