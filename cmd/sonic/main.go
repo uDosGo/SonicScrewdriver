@@ -20,6 +20,32 @@ import (
 	"strings"
 )
 
+// ============================================
+// DEV MODE - DEVELOPMENT ONLY
+// These variables and functions are for development only
+// and can be removed for production builds.
+// Tag: DEV-ONLY
+// ============================================
+
+// DevModeFlag indicates if Sonic is running in development mode
+// Tag: DEV-ONLY - Remove for production
+var DevModeFlag bool
+
+// DevModeSettings holds development mode configuration
+// Tag: DEV-ONLY - Remove for production
+var DevModeSettings = map[string]interface{}{
+	"verbose_logging":    true,
+	"debug_output":       true,
+	"keep_temp_files":    true,
+	"archive_builds":     true,
+	"auto_archive_logs":  true,
+	"show_mem_stats":     false,
+	"show_gc_stats":      false,
+	"trace_queries":      true,
+}
+
+// Tag: DEV-ONLY - Remove for production
+
 var (
 	containerRuntime container.Runtime
 	libManager        *library.Manager
@@ -31,6 +57,19 @@ var (
 )
 
 func main() {
+	// Initialize DEV MODE first
+	initializeDevMode()
+	
+	if DevModeFlag {
+		log.Printf("🔧 DEV MODE ENABLED - Development settings active")
+		if DevModeSettings["verbose_logging"].(bool) {
+			log.Printf("   Verbose logging: ON")
+		}
+		if DevModeSettings["archive_builds"].(bool) {
+			log.Printf("   Build archiving: ON")
+		}
+	}
+
 	// Initialize library manager
 	indexPath := library.GetDefaultIndexPath()
 	libManager = library.NewManager(indexPath)
@@ -434,6 +473,7 @@ func main() {
 			fmt.Println("  check       - Check system compatibility")
 			fmt.Println("  info        - Show system information")
 			fmt.Println("  resources   - Show system resources")
+			fmt.Println("  devmode     - Show DEV MODE status")
 			os.Exit(1)
 		}
 		handleSystemCommand(os.Args[2:])
@@ -519,6 +559,82 @@ func validateVentoyBundle(bundlePath string) {
 	
 	fmt.Printf("✓ Bundle is valid\n")
 }
+
+// ============================================
+// DEV MODE FUNCTIONS - DEVELOPMENT ONLY
+// Tag: DEV-ONLY - Remove for production
+// ============================================
+
+// initializeDevMode checks environment and sets DevModeFlag
+// DEV MODE is automatically enabled when:
+// - SONIC_DEV_MODE=true environment variable is set
+// - DEV_MODE=true environment variable is set
+// - DEVSTUDIO_DEV_MODE=true environment variable is set
+// - Running from VibeCli environment (VIBE_HOME or VIBE_SESSION_ID set)
+// Tag: DEV-ONLY - Remove for production
+func initializeDevMode() {
+	// Check explicit environment variables
+	if os.Getenv("SONIC_DEV_MODE") == "true" {
+		DevModeFlag = true
+		return
+	}
+	if os.Getenv("DEV_MODE") == "true" {
+		DevModeFlag = true
+		return
+	}
+	if os.Getenv("DEVSTUDIO_DEV_MODE") == "true" {
+		DevModeFlag = true
+		return
+	}
+	
+	// Check for VibeCli environment (auto-enable DEV MODE)
+	if os.Getenv("VIBE_HOME") != "" || os.Getenv("VIBE_SESSION_ID") != "" {
+		DevModeFlag = true
+		os.Setenv("SONIC_DEV_MODE", "true")
+		os.Setenv("DEV_MODE", "true")
+		os.Setenv("DEVSTUDIO_DEV_MODE", "true")
+		log.Printf("🤖 VibeCli environment detected - DEV MODE auto-enabled")
+		return
+	}
+	
+	// Check if we're running in a development directory
+	wd, _ := os.Getwd()
+	if strings.Contains(wd, "Code/SonicScrewdriver") || 
+	   strings.Contains(wd, "Code/DevStudio") {
+		// Check if there's a .devmode file in DevStudio
+		devModeFile := filepath.Join(os.Getenv("HOME"), "Code", "DevStudio", ".devmode")
+		if data, err := os.ReadFile(devModeFile); err == nil {
+			if strings.TrimSpace(string(data)) == "true" {
+				DevModeFlag = true
+				return
+			}
+		}
+	}
+	
+	// Default: DEV MODE off in production
+	DevModeFlag = false
+}
+
+// isDevMode returns true if running in development mode
+// Tag: DEV-ONLY - Remove for production
+func isDevMode() bool {
+	return DevModeFlag
+}
+
+// getDevModeSetting returns a dev mode setting value
+// Tag: DEV-ONLY - Remove for production
+func getDevModeSetting(key string) bool {
+	if !DevModeFlag {
+		return false
+	}
+	if val, ok := DevModeSettings[key].(bool); ok {
+		return val
+	}
+	return false
+}
+
+// Tag: DEV-ONLY - Remove for production
+// ============================================
 
 func getMasterKeyPath() string {
 	homeDir, err := os.UserHomeDir()
@@ -1738,6 +1854,7 @@ Commands:
   sonic system check       Check system compatibility
   sonic system info        Show system information
   sonic system resources   Show system resources
+  sonic system devmode     Show DEV MODE status
 
 Flags:
   --help, -h               Show this help
@@ -1758,9 +1875,55 @@ func handleSystemCommand(args []string) {
 		showSystemInfo()
 	case "resources":
 		showSystemResources()
+	case "devmode":
+		showDevModeStatus()
 	default:
 		fmt.Printf("Error: unknown system command: %s\n", command)
 		os.Exit(1)
+	}
+}
+
+// showDevModeStatus displays the current DEV MODE status
+// Tag: DEV-ONLY - Remove for production
+func showDevModeStatus() {
+	fmt.Println("🔧 DEV MODE Status")
+	fmt.Println("===================")
+	if DevModeFlag {
+		fmt.Println("Status:  ✅ ENABLED")
+		fmt.Println("Source:  Environment variable or VibeCli auto-detection")
+		fmt.Println("")
+		fmt.Println("Active Settings:")
+		for key, val := range DevModeSettings {
+			if b, ok := val.(bool); ok && b {
+				fmt.Printf("  ✓ %s\n", key)
+			}
+		}
+	} else {
+		fmt.Println("Status:  ❌ DISABLED")
+		fmt.Println("")
+		fmt.Println("To enable DEV MODE:")
+		fmt.Println("  - Set environment variable: export SONIC_DEV_MODE=true")
+		fmt.Println("  - Or run from VibeCli (auto-enabled)")
+		fmt.Println("  - Or create ~/.devmode file with 'true' in DevStudio")
+	}
+	fmt.Println("")
+	
+	// Show relevant environment variables
+	fmt.Println("Environment:")
+	if val := os.Getenv("SONIC_DEV_MODE"); val != "" {
+		fmt.Printf("  SONIC_DEV_MODE=%s\n", val)
+	}
+	if val := os.Getenv("DEV_MODE"); val != "" {
+		fmt.Printf("  DEV_MODE=%s\n", val)
+	}
+	if val := os.Getenv("DEVSTUDIO_DEV_MODE"); val != "" {
+		fmt.Printf("  DEVSTUDIO_DEV_MODE=%s\n", val)
+	}
+	if val := os.Getenv("VIBE_HOME"); val != "" {
+		fmt.Printf("  VIBE_HOME=%s\n", val)
+	}
+	if val := os.Getenv("VIBE_SESSION_ID"); val != "" {
+		fmt.Printf("  VIBE_SESSION_ID=%s\n", val)
 	}
 }
 
