@@ -431,7 +431,7 @@ step_devstudio_integration() {
     mkdir -p "$HOME/Code/DevStudio/Projects/SonicScrewdriver/config"
     
     # Create config
-    cat > "$HOME/Code/DevStudio/Projects/SonicScrewdriver/config/config.yaml" << EOF
+    cat > "$HOME/Code/DevStudio/Projects/SonicScrewdriver/config/config.yaml" << 'ENDYAML'
 sonic:
   source_dir: "~/Code/SonicScrewdriver"
   build_dir: "/tmp/sonic-builds"
@@ -446,14 +446,12 @@ lechat:
 development:
   debug_mode: false
   log_level: "info"
-  go_workspace: "~/.local/go"
 
 devstudio:
   projects_dir: "~/Code/DevStudio/Projects"
   installed: true
   runtime_rules:
-    go_workspace: "~/.local/go"
-EOF
+ENDYAML
     
     # Create README
     cat > "$HOME/Code/DevStudio/Projects/SonicScrewdriver/README.md" << EOF
