@@ -446,11 +446,11 @@ lechat:
 development:
   debug_mode: false
   log_level: "info"
+  go_workspace: "~/.local/go"
 
 devstudio:
   projects_dir: "~/Code/DevStudio/Projects"
   installed: true
-  runtime_rules:
 ENDYAML
     
     # Create README
