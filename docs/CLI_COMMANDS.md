@@ -1,6 +1,8 @@
-# Sonic-Screwdriver CLI Commands
+# Sonic-Screwdriver Console Controls
 
-## 📖 Command Reference
+## 📜 Command Reference
+
+*TARDIS Narrator: LIGHT intensity - themed title only*
 
 ### Basic Commands
 

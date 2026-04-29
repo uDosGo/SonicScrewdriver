@@ -1,8 +1,10 @@
 # Sonic-Screwdriver Architecture
 
-## 🏗️ Overview
+## 🏗️ TARDIS Systems Overview
 
-Sonic-Screwdriver is a modular API Central Hub designed for smart home automation, game management, and system integration. The architecture follows Classic Modern Mint principles with a focus on modularity, security, and extensibility.
+Sonic-Screwdriver is a modular TARDIS Console designed for smart home automation, Time Capsule management, and temporal system integration. The architecture follows Classic Modern Mint temporal principles with a focus on modularity, security, and temporal extensibility.
+
+*TARDIS Narrator: LIGHT intensity - themed introduction only*
 
 ## 📦 Component Architecture
 

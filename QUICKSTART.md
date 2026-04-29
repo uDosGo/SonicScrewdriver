@@ -1,6 +1,8 @@
-# Sonic-Screwdriver Quick Start Guide
+# Sonic-Screwdriver Materialization Guide
 
-## 🚀 Getting Started
+## 🚀 Engage Temporal Systems
+
+*TARDIS Narrator: LIGHT intensity - themed title only*
 
 ### Prerequisites
 - Go 1.25+ installed

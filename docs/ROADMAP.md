@@ -1,17 +1,19 @@
-# Sonic-Screwdriver Roadmap
+# Sonic-Screwdriver Temporal Missions
 
-## 🎯 Current Version: v2.1.0 (2026-04-29)
+## 🎯 Current Mission: v2.1.0 (2026-04-29)
 
-### What's New in v2.1.0
-- **Home Assistant Integration**: Complete iframe embed strategy with kiosk mode
-- **Enhanced Secret Management**: Rotation with history tracking
-- **Improved CLI**: New HA commands and better help system
-- **Documentation**: Comprehensive guides and quick start
+### v2.1.0 Achievements
+- **Home Assistant Integration**: Complete Time Vortex embed strategy with kiosk temporal mode
+- **Enhanced Encrypted Rune Management**: Rotation with temporal history tracking
+- **Improved Console Controls**: New HA commands and better temporal help matrix
+- **Archival Matrix**: Comprehensive Data Scrolls and materialization guides
 
-## 🗺️ Development Roadmap
+## 🗺️ Temporal Roadmap
 
 ### v2.1.0 (Current - Q2 2026)
-**Theme**: "Smart Home Integration"
+**Theme**: "Temporal Home Integration"
+
+*TARDIS Narrator: LIGHT intensity - themed titles and section headers only*
 
 #### ✅ Completed
 - Home Assistant deep integration
