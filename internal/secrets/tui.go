@@ -7,6 +7,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sonic-family/sonic-screwdriver/internal/disk"
+	"github.com/sonic-family/sonic-screwdriver/internal/iso"
+	"github.com/sonic-family/sonic-screwdriver/internal/usb"
 )
 
 // TUI provides a simple text-based user interface
@@ -67,15 +71,17 @@ func (t *TUI) Run() {
 
 // showMainMenu displays the main menu
 func (t *TUI) showMainMenu() {
-	fmt.Println("\n🎛️ Sonic-Screwdriver v2.0 - API Central Hub")
-	fmt.Println("==============================================")
-	fmt.Println("1. 🔑 Secret Management")
-	fmt.Println("2. 🖥️ Node Management")
-	fmt.Println("3. 🌐 API Proxy")
-	fmt.Println("4. 📊 System Status")
-	fmt.Println("5. 🖥️ Remote Access")
-	fmt.Println("6. 🔜 Swarm Orchestration (planned)")
-	fmt.Println("7. 🔜 Master Node Setup (planned)")
+fmt.Println("\n🎛️ Sonic-Screwdriver v2.1 - API Central Hub + USB Installer")
+fmt.Println("============================================================")
+fmt.Println("1. 🔑 Secret Management")
+fmt.Println("2. 🖥️ Node Management")
+fmt.Println("3. 🌐 API Proxy")
+fmt.Println("4. 📊 System Status")
+fmt.Println("5. 🖥️ Remote Access")
+fmt.Println("6. 💿 USB Installer")
+fmt.Println("7. 📀 ISO Downloader")
+fmt.Println("8. 💾 Disk Operations")
+fmt.Println("9. 🎮 Game Containers")
 }
 
 // showSecretMenu displays the secret management menu
@@ -756,4 +762,464 @@ func (t *TUI) makeProxyCall(reader *bufio.Reader) {
 	fmt.Printf("\n✓ Proxy call completed\n")
 	fmt.Printf("Status: %d\n", response.Status)
 	fmt.Printf("Response: %+v\n", response.Body)
+}
+// ============================================
+// USB Installer Menu
+// ============================================
+
+func (t *TUI) showUSBInstallerMenu(reader *bufio.Reader) {
+for {
+fmt.Println("\n💿 USB Installer")
+fmt.Println("=================")
+fmt.Println("1. List USB Devices")
+fmt.Println("2. Install Ubuntu 24.04 to USB")
+fmt.Println("3. Install Linux Mint 22 to USB")
+fmt.Println("4. Install Classic Modern Mint to USB")
+fmt.Println("5. Prepare Disk Only (partition + format)")
+fmt.Println("6. Write Existing ISO to USB")
+fmt.Println("7. Back to Main Menu")
+
+fmt.Print("\nEnter your choice: ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+
+num, err := strconv.Atoi(input)
+if err != nil {
+fmt.Println("Invalid input.")
+continue
+}
+
+switch num {
+case 1:
+usb.ListUSBDevices()
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 2:
+t.installDistroToUSB(reader, "ubuntu")
+case 3:
+t.installDistroToUSB(reader, "mint")
+case 4:
+t.installDistroToUSB(reader, "classicmodern")
+case 5:
+t.prepareDiskOnly(reader)
+case 6:
+t.writeISOToUSB(reader)
+case 7:
+return
+default:
+fmt.Println("Invalid choice.")
+}
+}
+}
+
+func (t *TUI) installDistroToUSB(reader *bufio.Reader, distroName string) {
+devices, err := disk.DetectDevices(true)
+if err != nil || len(devices) == 0 {
+fmt.Println("No USB devices found.")
+return
+}
+
+fmt.Println("\nAvailable USB devices:")
+for i, d := range devices {
+fmt.Printf("  %d. %s  %s  %s\n", i+1, d.Path, d.Size, d.Model)
+}
+
+fmt.Print("\nSelect device number (or 0 to cancel): ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+num, err := strconv.Atoi(input)
+if err != nil || num < 1 || num > len(devices) {
+fmt.Println("Cancelled.")
+return
+}
+
+device := devices[num-1].Path
+layout, _ := usb.GetLayout(distroName)
+
+fmt.Printf("\n⚠️  This will DESTROY ALL DATA on %s\n", device)
+fmt.Printf("Layout: %s\n", layout.Name)
+for _, p := range layout.Partitions {
+fmt.Printf("  Partition %d: %s (%s) %s\n", p.Number, p.Label, p.FS, p.Size)
+}
+fmt.Print("\nType YES to confirm: ")
+confirm, _ := reader.ReadString('\n')
+if strings.TrimSpace(confirm) != "YES" {
+fmt.Println("Aborted.")
+return
+}
+
+config := usb.InstallConfig{
+Device:     device,
+DistroName: distroName,
+Layout:     layout,
+}
+
+fmt.Println("\nStarting full install...")
+result, err := usb.FullInstall(config)
+if err != nil {
+fmt.Printf("❌ Install failed: %v\n", err)
+} else {
+fmt.Printf("\n✅ %s installed to %s\n", result.Distro, result.Device)
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+}
+
+func (t *TUI) prepareDiskOnly(reader *bufio.Reader) {
+devices, err := disk.DetectDevices(true)
+if err != nil || len(devices) == 0 {
+fmt.Println("No USB devices found.")
+return
+}
+
+fmt.Println("\nAvailable USB devices:")
+for i, d := range devices {
+fmt.Printf("  %d. %s  %s  %s\n", i+1, d.Path, d.Size, d.Model)
+}
+
+fmt.Print("\nSelect device number (or 0 to cancel): ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+num, _ := strconv.Atoi(input)
+if num < 1 || num > len(devices) {
+return
+}
+
+device := devices[num-1].Path
+
+fmt.Println("\nSelect layout:")
+fmt.Println("  1. Ubuntu (EFI 512MiB + ext4)")
+fmt.Println("  2. Linux Mint (EFI 512MiB + ext4)")
+fmt.Println("  3. Classic Modern (EFI 1GiB + swap 8GiB + ext4)")
+fmt.Print("Choice: ")
+input, _ = reader.ReadString('\n')
+input = strings.TrimSpace(input)
+
+var layout disk.Layout
+switch input {
+case "1":
+layout = disk.UbuntuLayout()
+case "2":
+layout = disk.LinuxMintLayout()
+case "3":
+layout = disk.ClassicModernLayout()
+default:
+fmt.Println("Invalid choice.")
+return
+}
+
+fmt.Printf("\n⚠️  This will DESTROY ALL DATA on %s\n", device)
+fmt.Print("Type YES to confirm: ")
+confirm, _ := reader.ReadString('\n')
+if strings.TrimSpace(confirm) != "YES" {
+fmt.Println("Aborted.")
+return
+}
+
+config := usb.InstallConfig{Device: device, Layout: layout}
+if err := usb.PrepareDisk(config); err != nil {
+fmt.Printf("❌ Failed: %v\n", err)
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+}
+
+func (t *TUI) writeISOToUSB(reader *bufio.Reader) {
+fmt.Print("\nEnter ISO file path: ")
+isoPath, _ := reader.ReadString('\n')
+isoPath = strings.TrimSpace(isoPath)
+
+if _, err := os.Stat(isoPath); os.IsNotExist(err) {
+fmt.Printf("❌ File not found: %s\n", isoPath)
+return
+}
+
+devices, err := disk.DetectDevices(true)
+if err != nil || len(devices) == 0 {
+fmt.Println("No USB devices found.")
+return
+}
+
+fmt.Println("\nAvailable USB devices:")
+for i, d := range devices {
+fmt.Printf("  %d. %s  %s  %s\n", i+1, d.Path, d.Size, d.Model)
+}
+
+fmt.Print("\nSelect device number (or 0 to cancel): ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+num, _ := strconv.Atoi(input)
+if num < 1 || num > len(devices) {
+return
+}
+
+device := devices[num-1].Path
+
+fmt.Printf("\n⚠️  This will write %s to %s\n", isoPath, device)
+fmt.Print("Type YES to confirm: ")
+confirm, _ := reader.ReadString('\n')
+if strings.TrimSpace(confirm) != "YES" {
+fmt.Println("Aborted.")
+return
+}
+
+if err := iso.WriteISOToDisk(isoPath, device); err != nil {
+fmt.Printf("❌ Failed: %v\n", err)
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+}
+
+// ============================================
+// ISO Downloader Menu
+// ============================================
+
+func (t *TUI) showISODownloaderMenu(reader *bufio.Reader) {
+for {
+fmt.Println("\n📀 ISO Downloader")
+fmt.Println("=================")
+fmt.Println("1. List Available Distros")
+fmt.Println("2. Download Ubuntu 24.04")
+fmt.Println("3. Download Linux Mint 22")
+fmt.Println("4. Download Classic Modern Mint")
+fmt.Println("5. Show Cache Status")
+fmt.Println("6. Back to Main Menu")
+
+fmt.Print("\nEnter your choice: ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+
+num, err := strconv.Atoi(input)
+if err != nil {
+fmt.Println("Invalid input.")
+continue
+}
+
+switch num {
+case 1:
+fmt.Println("\nAvailable Distros:")
+for _, d := range iso.ListDistros() {
+fmt.Printf("  %-20s v%-8s %s (%s)\n", d.Name, d.Version, d.Size, d.Arch)
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 2:
+t.downloadISO(reader, "ubuntu")
+case 3:
+t.downloadISO(reader, "mint")
+case 4:
+t.downloadISO(reader, "classicmodern")
+case 5:
+t.showISOCache()
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 6:
+return
+default:
+fmt.Println("Invalid choice.")
+}
+}
+}
+
+func (t *TUI) downloadISO(reader *bufio.Reader, distroName string) {
+distro, err := iso.GetDistro(distroName)
+if err != nil {
+fmt.Printf("Error: %v\n", err)
+return
+}
+
+fmt.Printf("\nDownloading %s %s (%s)...\n", distro.Name, distro.Version, distro.Size)
+fmt.Println("This may take a while depending on your connection.")
+fmt.Print("Continue? (y/N): ")
+confirm, _ := reader.ReadString('\n')
+if strings.ToLower(strings.TrimSpace(confirm)) != "y" {
+fmt.Println("Aborted.")
+return
+}
+
+progressCh := make(chan iso.DownloadStatus, 10)
+done := make(chan bool)
+
+go func() {
+for status := range progressCh {
+if status.Complete {
+fmt.Printf("\n✅ Downloaded: %s\n", status.FilePath)
+done <- true
+return
+}
+fmt.Printf("\r  Progress: %.1f%% (%d/%d bytes)", status.Progress, status.Downloaded, status.TotalBytes)
+}
+}()
+
+_, err = iso.Download(distro, progressCh)
+close(progressCh)
+if err != nil {
+fmt.Printf("\n❌ Download failed: %v\n", err)
+}
+
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+}
+
+func (t *TUI) showISOCache() {
+cacheDir := iso.GetCacheDir()
+fmt.Printf("\nISO Cache: %s\n", cacheDir)
+entries, err := os.ReadDir(cacheDir)
+if err != nil {
+fmt.Println("Cache is empty or inaccessible.")
+return
+}
+fmt.Printf("Cached ISOs: %d\n", len(entries))
+for _, e := range entries {
+info, _ := e.Info()
+sizeMB := float64(info.Size()) / 1024 / 1024
+fmt.Printf("  %s (%.0f MB)\n", e.Name(), sizeMB)
+}
+}
+
+// ============================================
+// Disk Operations Menu
+// ============================================
+
+func (t *TUI) showDiskOpsMenu(reader *bufio.Reader) {
+for {
+fmt.Println("\n💾 Disk Operations")
+fmt.Println("==================")
+fmt.Println("1. List All Block Devices")
+fmt.Println("2. Show Device Details")
+fmt.Println("3. Wipe Disk (DESTRUCTIVE)")
+fmt.Println("4. Back to Main Menu")
+
+fmt.Print("\nEnter your choice: ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+
+num, err := strconv.Atoi(input)
+if err != nil {
+fmt.Println("Invalid input.")
+continue
+}
+
+switch num {
+case 1:
+devices, err := disk.DetectDevices(false)
+if err != nil {
+fmt.Printf("Error: %v\n", err)
+} else {
+fmt.Println("\nBlock Devices:")
+for _, d := range devices {
+removable := ""
+if d.Removable {
+removable = " [USB]"
+}
+fmt.Printf("  %-12s %-8s %s%s\n", d.Path, d.Size, d.Model, removable)
+}
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 2:
+fmt.Print("Enter device path (e.g., /dev/sdb): ")
+devPath, _ := reader.ReadString('\n')
+devPath = strings.TrimSpace(devPath)
+devices, _ := disk.DetectDevices(false)
+found := false
+for _, d := range devices {
+if d.Path == devPath || d.Name == devPath {
+fmt.Printf("\nDevice: %s\n", d.Path)
+fmt.Printf("  Size:      %s\n", d.Size)
+fmt.Printf("  Model:     %s\n", d.Model)
+fmt.Printf("  Removable: %v\n", d.Removable)
+found = true
+break
+}
+}
+if !found {
+fmt.Printf("Device not found: %s\n", devPath)
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 3:
+fmt.Print("Enter device path to wipe (e.g., /dev/sdb): ")
+devPath, _ := reader.ReadString('\n')
+devPath = strings.TrimSpace(devPath)
+fmt.Printf("\n⚠️  This will DESTROY ALL DATA on %s\n", devPath)
+fmt.Print("Type YES to confirm: ")
+confirm, _ := reader.ReadString('\n')
+if strings.TrimSpace(confirm) != "YES" {
+fmt.Println("Aborted.")
+} else {
+if err := disk.WipeDevice(devPath); err != nil {
+fmt.Printf("❌ Failed: %v\n", err)
+} else {
+fmt.Println("✅ Disk wiped successfully")
+}
+}
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+case 4:
+return
+default:
+fmt.Println("Invalid choice.")
+}
+}
+}
+
+// ============================================
+// Game Containers Menu
+// ============================================
+
+func (t *TUI) showGameContainersMenu(reader *bufio.Reader) {
+for {
+fmt.Println("\n🎮 Game Containers")
+fmt.Println("===================")
+fmt.Println("1. List Installed Games")
+fmt.Println("2. Start Game Container")
+fmt.Println("3. Stop Game Container")
+fmt.Println("4. Check Container Health")
+fmt.Println("5. Back to Main Menu")
+
+fmt.Print("\nEnter your choice: ")
+input, _ := reader.ReadString('\n')
+input = strings.TrimSpace(input)
+
+num, err := strconv.Atoi(input)
+if err != nil {
+fmt.Println("Invalid input.")
+continue
+}
+
+switch num {
+case 1:
+t.listGames()
+case 2:
+t.manageGameContainer(reader, "start")
+case 3:
+t.manageGameContainer(reader, "stop")
+case 4:
+t.checkGameHealth()
+case 5:
+return
+default:
+fmt.Println("Invalid choice.")
+}
+}
+}
+
+func (t *TUI) listGames() {
+fmt.Println("\nInstalled Games:")
+fmt.Println("(Container management available via CLI: sonic start/stop/health)")
+fmt.Println("\nPress Enter to continue...")
+bufio.NewReader(os.Stdin).ReadString('\n')
+}
+
+func (t *TUI) manageGameContainer(reader *bufio.Reader, action string) {
+fmt.Printf("\nUse CLI for container %s: sonic %s <game>\n", action, action)
+fmt.Println("\nPress Enter to continue...")
+reader.ReadString('\n')
+}
+
+func (t *TUI) checkGameHealth() {
+fmt.Println("\nUse CLI: sonic health --all")
+fmt.Println("\nPress Enter to continue...")
+bufio.NewReader(os.Stdin).ReadString('\n')
 }
