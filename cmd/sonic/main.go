@@ -11,7 +11,10 @@ import (
 	"github.com/sonic-family/sonic-screwdriver/internal/remote"
 	"github.com/sonic-family/sonic-screwdriver/internal/secrets"
 	"github.com/sonic-family/sonic-screwdriver/internal/state"
-	"github.com/sonic-family/sonic-screwdriver/modules/ventoy"
+	"github.com/sonic-family/sonic-screwdriver/internal/disk"
+"github.com/sonic-family/sonic-screwdriver/internal/iso"
+"github.com/sonic-family/sonic-screwdriver/internal/usb"
+"github.com/sonic-family/sonic-screwdriver/modules/ventoy"
 	"log"
 	"os"
 	"os/exec"
@@ -477,6 +480,41 @@ func main() {
 			os.Exit(1)
 		}
 		handleSystemCommand(os.Args[2:])
+	case "usb":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: sonic usb <command> [args]")
+			fmt.Println("Commands:")
+			fmt.Println("  list                  - List available USB devices")
+			fmt.Println("  prepare <device> <distro>  - Partition and format USB for distro")
+			fmt.Println("  install <device> <distro>  - Full install: download ISO + write to USB")
+			fmt.Println("  write <device> <iso>       - Write existing ISO to USB")
+			fmt.Println("")
+			fmt.Println("Distros: ubuntu, mint, classicmodern")
+			os.Exit(1)
+		}
+		handleUSBCommand(os.Args[2:])
+	case "iso":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: sonic iso <command> [args]")
+			fmt.Println("Commands:")
+			fmt.Println("  list                  - List available distros")
+			fmt.Println("  download <distro>     - Download ISO to cache")
+			fmt.Println("  cache                 - Show cache status")
+			fmt.Println("")
+			fmt.Println("Distros: ubuntu, mint, classicmodern")
+			os.Exit(1)
+		}
+		handleISOCommand(os.Args[2:])
+	case "disk":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: sonic disk <command> [args]")
+			fmt.Println("Commands:")
+			fmt.Println("  list                  - List all block devices")
+			fmt.Println("  info <device>         - Show device details")
+			fmt.Println("  wipe <device>         - Wipe partition table (DESTRUCTIVE)")
+			os.Exit(1)
+		}
+		handleDiskCommand(os.Args[2:])
 	default:
 		printHelp()
 	}
@@ -2099,4 +2137,219 @@ func showSystemResources() {
 type SystemInfo struct {
 	Name    string
 	Version string
+}
+
+// ============================================
+// USB Installer Commands
+// ============================================
+
+func handleUSBCommand(args []string) {
+if len(args) == 0 {
+fmt.Println("Error: usb command required")
+os.Exit(1)
+}
+
+switch args[0] {
+case "list":
+usb.ListUSBDevices()
+case "prepare":
+if len(args) < 3 {
+fmt.Println("Usage: sonic usb prepare <device> <distro>")
+fmt.Println("Distros: ubuntu, mint, classicmodern")
+os.Exit(1)
+}
+device := args[1]
+distroName := args[2]
+layout, err := usb.GetLayout(distroName)
+if err != nil {
+log.Fatalf("Error: %v", err)
+}
+if !usb.Confirm(device) {
+fmt.Println("Aborted")
+os.Exit(0)
+}
+config := usb.InstallConfig{
+Device: device,
+DistroName: distroName,
+Layout: layout,
+}
+if err := usb.PrepareDisk(config); err != nil {
+log.Fatalf("Prepare failed: %v", err)
+}
+case "install":
+if len(args) < 3 {
+fmt.Println("Usage: sonic usb install <device> <distro>")
+fmt.Println("Distros: ubuntu, mint, classicmodern")
+os.Exit(1)
+}
+device := args[1]
+distroName := args[2]
+layout, err := usb.GetLayout(distroName)
+if err != nil {
+log.Fatalf("Error: %v", err)
+}
+if !usb.Confirm(device) {
+fmt.Println("Aborted")
+os.Exit(0)
+}
+config := usb.InstallConfig{
+Device: device,
+DistroName: distroName,
+Layout: layout,
+}
+result, err := usb.FullInstall(config)
+if err != nil {
+log.Fatalf("Install failed: %v", err)
+}
+fmt.Printf("\n✅ %s installed to %s\n", result.Distro, result.Device)
+case "write":
+if len(args) < 3 {
+fmt.Println("Usage: sonic usb write <device> <iso-path>")
+os.Exit(1)
+}
+device := args[1]
+isoPath := args[2]
+if !usb.Confirm(device) {
+fmt.Println("Aborted")
+os.Exit(0)
+}
+if err := iso.WriteISOToDisk(isoPath, device); err != nil {
+log.Fatalf("Write failed: %v", err)
+}
+default:
+fmt.Printf("Unknown usb command: %s\n", args[0])
+os.Exit(1)
+}
+}
+
+// ============================================
+// ISO Download Commands
+// ============================================
+
+func handleISOCommand(args []string) {
+if len(args) == 0 {
+fmt.Println("Error: iso command required")
+os.Exit(1)
+}
+
+switch args[0] {
+case "list":
+fmt.Println("\nAvailable Distros:")
+for _, d := range iso.ListDistros() {
+fmt.Printf("  %-20s v%-8s %s (%s)\n", d.Name, d.Version, d.Size, d.Arch)
+}
+case "download":
+if len(args) < 2 {
+fmt.Println("Usage: sonic iso download <distro>")
+os.Exit(1)
+}
+distro, err := iso.GetDistro(args[1])
+if err != nil {
+log.Fatalf("Error: %v", err)
+}
+progressCh := make(chan iso.DownloadStatus, 10)
+go func() {
+for status := range progressCh {
+if status.Complete {
+break
+}
+fmt.Printf("\r  Downloading: %.1f%%", status.Progress)
+}
+}()
+isoPath, err := iso.Download(distro, progressCh)
+close(progressCh)
+if err != nil {
+log.Fatalf("Download failed: %v", err)
+}
+fmt.Printf("\n✅ Downloaded: %s\n", isoPath)
+case "cache":
+cacheDir := iso.GetCacheDir()
+fmt.Printf("ISO Cache: %s\n", cacheDir)
+if entries, err := os.ReadDir(cacheDir); err == nil {
+fmt.Printf("Cached ISOs: %d\n", len(entries))
+for _, e := range entries {
+info, _ := e.Info()
+fmt.Printf("  %s (%s)\n", e.Name(), formatBytes(uint64(info.Size())))
+}
+}
+default:
+fmt.Printf("Unknown iso command: %s\n", args[0])
+os.Exit(1)
+}
+}
+
+// ============================================
+// Disk Operations Commands
+// ============================================
+
+func handleDiskCommand(args []string) {
+if len(args) == 0 {
+fmt.Println("Error: disk command required")
+os.Exit(1)
+}
+
+switch args[0] {
+case "list":
+devices, err := disk.DetectDevices(false)
+if err != nil {
+log.Fatalf("Error: %v", err)
+}
+fmt.Println("\nBlock Devices:")
+for _, d := range devices {
+removable := ""
+if d.Removable {
+removable = " [USB]"
+}
+fmt.Printf("  %-12s %-8s %s%s\n", d.Path, d.Size, d.Model, removable)
+}
+case "info":
+if len(args) < 2 {
+fmt.Println("Usage: sonic disk info <device>")
+os.Exit(1)
+}
+devices, err := disk.DetectDevices(false)
+if err != nil {
+log.Fatalf("Error: %v", err)
+}
+for _, d := range devices {
+if d.Path == args[1] || d.Name == args[1] {
+fmt.Printf("\nDevice: %s\n", d.Path)
+fmt.Printf("  Size:      %s\n", d.Size)
+fmt.Printf("  Model:     %s\n", d.Model)
+fmt.Printf("  Removable: %v\n", d.Removable)
+return
+}
+}
+fmt.Printf("Device not found: %s\n", args[1])
+case "wipe":
+if len(args) < 2 {
+fmt.Println("Usage: sonic disk wipe <device>")
+os.Exit(1)
+}
+device := args[1]
+if !usb.Confirm(device) {
+fmt.Println("Aborted")
+os.Exit(0)
+}
+if err := disk.WipeDevice(device); err != nil {
+log.Fatalf("Wipe failed: %v", err)
+}
+fmt.Println("✅ Disk wiped")
+default:
+fmt.Printf("Unknown disk command: %s\n", args[0])
+os.Exit(1)
+}
+}
+
+func formatBytes(bytes uint64) string {
+const unit = 1024
+if bytes < unit {
+return fmt.Sprintf("%dB", bytes)
+}
+div, exp := uint64(unit), 0
+for n := bytes / unit; n >= unit; n /= unit {
+div *= unit
+exp++
+}
+return fmt.Sprintf("%.1f%cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
