@@ -1,15 +1,15 @@
 package iso
 
 import (
-"crypto/sha256"
-"fmt"
-"io"
-"net/http"
-"os"
-"os/exec"
-"path/filepath"
-"strings"
-"time"
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 // Distro defines an OS distribution available for download

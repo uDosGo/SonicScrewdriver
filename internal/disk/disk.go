@@ -1,11 +1,11 @@
 package disk
 
 import (
-"encoding/json"
-"fmt"
-"os"
-"os/exec"
-"strings"
+	"encoding/json"
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 // Device represents a detected block device
