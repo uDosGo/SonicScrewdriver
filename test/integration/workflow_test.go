@@ -1,10 +1,7 @@
 package integration
 
 import (
-	"os"
 	"testing"
-
-	"github.com/sonic-family/sonic-screwdriver/cmd/sonic/main"
 )
 
 // TestInstallStartStopRemove tests the complete container lifecycle
