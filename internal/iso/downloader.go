@@ -48,10 +48,13 @@ URL:    "https://mirrors.edge.kernel.org/linuxmint/stable/22/linuxmint-22-cinnam
 Mirror: "https://mirror.aarnet.edu.au/pub/linuxmint/stable/22/linuxmint-22-cinnamon-64bit.iso",
 Size:   "~2.8GB", Arch: "amd64",
 }
+// Classic Modern Mint is a theme/config overlay on Linux Mint 21.3 Cinnamon
+// It uses the Linux Mint ISO + post-install theming via .she bundle
 ClassicModern = Distro{
 Name:    "classicmodern", Version: "1.0",
-URL:  "https://releases.classicmodern.org/classic-modern-mint-1.0-amd64.iso",
-Size: "~3.0GB", Arch: "amd64",
+URL:  LinuxMint22.URL,  // Uses Linux Mint 22 ISO as base
+Mirror: LinuxMint22.Mirror,
+Size: LinuxMint22.Size, Arch: "amd64",
 }
 )
 
@@ -67,7 +70,10 @@ return Ubuntu2404, nil
 case "mint", "linuxmint", "linux-mint", "mint22":
 return LinuxMint22, nil
 case "classicmodern", "classic-modern", "classic-modern-mint":
-return ClassicModern, nil
+d := ClassicModern
+d.Name = "classicmodern"
+d.Version = "1.0 (Linux Mint " + LinuxMint22.Version + " base)"
+return d, nil
 default:
 return Distro{}, fmt.Errorf("unknown distro: %s (available: ubuntu, mint, classicmodern)", name)
 }
