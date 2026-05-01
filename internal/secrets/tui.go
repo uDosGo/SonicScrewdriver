@@ -61,6 +61,14 @@ func (t *TUI) Run() {
 			t.showStatus()
 		case 5:
 			t.showRemoteMenu(reader)
+		case 6:
+			t.showUSBInstallerMenu(reader)
+		case 7:
+			t.showISODownloaderMenu(reader)
+		case 8:
+			t.showDiskOpsMenu(reader)
+		case 9:
+			t.showGameContainersMenu(reader)
 		default:
 			fmt.Println("Invalid choice. Please try again.")
 		}
