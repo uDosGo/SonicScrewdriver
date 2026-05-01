@@ -96,16 +96,25 @@ return devices, nil
 // WipeDevice removes all partitions and creates a fresh GPT table
 func WipeDevice(devicePath string) error {
 fmt.Printf("  Wiping partition table on %s...\n", devicePath)
-unmountPartitions(devicePath)
 
-cmd := exec.Command("wipefs", "-a", devicePath)
+// 1. Unmount ALL partitions on the device (thorough)
+fmt.Println("  Unmounting all partitions...")
+unmountAllPartitions(devicePath)
+
+// 2. Wipe filesystem signatures (with force flag, using sudo if needed)
+fmt.Println("  Wiping filesystem signatures...")
+cmd := execWithSudo("wipefs", "-a", "-f", devicePath)
 cmd.Stdout = os.Stdout
 cmd.Stderr = os.Stderr
 if err := cmd.Run(); err != nil {
+// Try with individual partitions
+fmt.Printf("  wipefs on %s failed, trying per-partition...\n", devicePath)
+if err := wipeAllPartitions(devicePath); err != nil {
 return fmt.Errorf("wipefs failed: %w", err)
 }
+}
 
-cmd = exec.Command("parted", "-s", devicePath, "mklabel", "gpt")
+cmd = execWithSudo("parted", "-s", devicePath, "mklabel", "gpt")
 cmd.Stdout = os.Stdout
 cmd.Stderr = os.Stderr
 if err := cmd.Run(); err != nil {
@@ -133,7 +142,7 @@ default:
 fsType = p.Type
 }
 
-cmd := exec.Command("parted", "-s", devicePath,
+cmd := execWithSudo("parted", "-s", devicePath,
 "mkpart", p.Label, fsType, "0%", p.Size)
 cmd.Stdout = os.Stdout
 cmd.Stderr = os.Stderr
@@ -143,16 +152,16 @@ return fmt.Errorf("mkpart %s failed: %w", p.Label, err)
 
 partNum := fmt.Sprintf("%d", p.Number)
 if p.Boot {
-exec.Command("parted", "-s", devicePath, "set", partNum, "boot", "on").Run()
+execWithSudo("parted", "-s", devicePath, "set", partNum, "boot", "on").Run()
 }
 if p.Type == "efi" {
-exec.Command("parted", "-s", devicePath, "set", partNum, "esp", "on").Run()
+execWithSudo("parted", "-s", devicePath, "set", partNum, "esp", "on").Run()
 }
 
 fmt.Printf("  ✅ Partition %d: %s (%s)\n", p.Number, p.Label, fsType)
 }
 
-exec.Command("partprobe", devicePath).Run()
+execWithSudo("partprobe", devicePath).Run()
 return nil
 }
 
@@ -164,11 +173,11 @@ fmt.Printf("  Formatting %s as %s...\n", partPath, fsType)
 var cmd *exec.Cmd
 switch fsType {
 case "fat32", "vfat":
-cmd = exec.Command("mkfs.fat", "-F32", "-n", label, partPath)
+cmd = execWithSudo("mkfs.fat", "-F32", "-n", label, partPath)
 case "ext4":
-cmd = exec.Command("mkfs.ext4", "-F", "-L", label, partPath)
+cmd = execWithSudo("mkfs.ext4", "-F", "-L", label, partPath)
 case "swap":
-cmd = exec.Command("mkswap", "-L", label, partPath)
+cmd = execWithSudo("mkswap", "-L", label, partPath)
 default:
 return fmt.Errorf("unsupported filesystem: %s", fsType)
 }
@@ -198,7 +207,7 @@ partPath := getPartitionPath(devicePath, partNum)
 if err := os.MkdirAll(mountPoint, 0755); err != nil {
 return err
 }
-cmd := exec.Command("mount", partPath, mountPoint)
+cmd := execWithSudo("mount", partPath, mountPoint)
 cmd.Stdout = os.Stdout
 cmd.Stderr = os.Stderr
 if err := cmd.Run(); err != nil {
@@ -253,6 +262,56 @@ Partitions: []Partition{
 {Number: 3, Size: "100%", Type: "linux", FS: "ext4", Label: "classicmodern"},
 },
 }
+}
+
+// unmountAllPartitions unmounts every partition on a device
+func unmountAllPartitions(devicePath string) {
+// Get all mount points for this device
+cmd := exec.Command("sh", "-c", 
+fmt.Sprintf("lsblk -ln -o MOUNTPOINT %s | grep -v '^$' || true", devicePath))
+out, _ := cmd.Output()
+for _, mp := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+mp = strings.TrimSpace(mp)
+if mp != "" {
+fmt.Printf("  Unmounting %s...\n", mp)
+exec.Command("umount", mp).Run()
+exec.Command("umount", "-l", mp).Run() // lazy unmount as fallback
+}
+}
+// Also try partition-specific paths
+for i := 1; i <= 10; i++ {
+partPath := getPartitionPath(devicePath, i)
+exec.Command("umount", partPath).Run()
+exec.Command("umount", "-l", partPath).Run()
+}
+}
+
+// wipeAllPartitions wipes each partition individually
+func wipeAllPartitions(devicePath string) error {
+for i := 1; i <= 10; i++ {
+partPath := getPartitionPath(devicePath, i)
+if _, err := os.Stat(partPath); os.IsNotExist(err) {
+continue
+}
+cmd := execWithSudo("wipefs", "-a", "-f", partPath)
+cmd.Stdout = os.Stdout
+cmd.Stderr = os.Stderr
+if err := cmd.Run(); err != nil {
+return fmt.Errorf("wipefs %s failed: %w", partPath, err)
+}
+fmt.Printf("  Wiped %s\n", partPath)
+}
+return nil
+}
+
+// execWithSudo runs a command with sudo if not already root
+func execWithSudo(name string, args ...string) *exec.Cmd {
+if os.Geteuid() == 0 {
+return exec.Command(name, args...)
+}
+// Prepend sudo
+sudoArgs := append([]string{name}, args...)
+return exec.Command("sudo", sudoArgs...)
 }
 
 func formatBytes(bytes uint64) string {

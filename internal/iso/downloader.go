@@ -141,7 +141,7 @@ return filePath, nil
 // WriteISOToDisk writes an ISO directly to a block device
 func WriteISOToDisk(isoPath, devicePath string) error {
 fmt.Printf("  Writing %s to %s (this may take several minutes)...\n", filepath.Base(isoPath), devicePath)
-cmd := exec.Command("dd", "if="+isoPath, "of="+devicePath, "bs=4M", "status=progress", "conv=fsync")
+cmd := execWithSudo("dd", "if="+isoPath, "of="+devicePath, "bs=4M", "status=progress", "conv=fsync")
 cmd.Stdout = os.Stdout
 cmd.Stderr = os.Stderr
 if err := cmd.Run(); err != nil {
@@ -198,6 +198,15 @@ return readErr
 }
 }
 return nil
+}
+
+
+func execWithSudo(name string, args ...string) *exec.Cmd {
+if os.Geteuid() == 0 {
+return exec.Command(name, args...)
+}
+sudoArgs := append([]string{name}, args...)
+return exec.Command("sudo", sudoArgs...)
 }
 
 func verifySHA256(filePath, expected string) bool {
