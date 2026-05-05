@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -13,7 +14,6 @@ import (
 	"github.com/OkAgentDigital/universal/secrets"
 	"github.com/OkAgentDigital/universal/state"
 	"github.com/OkAgentDigital/universal/usb"
-	"github.com/sonic-family/sonic-screwdriver/internal/homeassistant"
 	"github.com/sonic-family/sonic-screwdriver/modules/ventoy"
 	"log"
 	"os"
@@ -56,7 +56,6 @@ var (
 	secretStore       *secrets.SecretStore
 	nodeRegistry      *secrets.NodeRegistry
 	proxyServer       *secrets.ProxyServer
-	haIntegration     *homeassistant.HAIntegration
 )
 
 func main() {
@@ -443,22 +442,6 @@ func main() {
 			os.Exit(1)
 		}
 		handleMintCommand(os.Args[2:])
-	case "ha", "homeassistant":
-		if len(os.Args) < 3 {
-			fmt.Println("Usage: sonic ha <command> [args]")
-			fmt.Println("Commands:")
-			fmt.Println("  setup <url> <token>                  - Setup Home Assistant integration")
-			fmt.Println("  configure                            - Configure HA integration")
-			fmt.Println("  status                               - Show HA status")
-			fmt.Println("  info                                 - Show HA instance info")
-			fmt.Println("  embed <output.html>                  - Generate embed HTML file")
-			fmt.Println("  kiosk enable|disable                 - Enable/disable kiosk mode")
-			fmt.Println("  refresh <minutes>                    - Set refresh rate")
-			fmt.Println("  version                              - Get HA version")
-			fmt.Println("  check                                - Check HA connection")
-			os.Exit(1)
-		}
-		handleHACommand(os.Args[2:])
 	case "ventoy":
 		if len(os.Args) < 3 {
 			fmt.Println("Usage: sonic ventoy <command> [args]")
@@ -1613,211 +1596,6 @@ func proxyHealth() {
 	fmt.Println("\nProxy health check completed!")
 }
 
-func handleHACommand(args []string) {
-	if len(args) == 0 {
-		fmt.Println("Error: ha command required")
-		os.Exit(1)
-	}
-
-	command := args[0]
-	switch command {
-	case "setup":
-		if len(args) < 3 {
-			fmt.Println("Usage: sonic ha setup <url> <token>")
-			os.Exit(1)
-		}
-		setupHA(args[1], args[2])
-	case "configure":
-		configureHA()
-	case "status":
-		showHAStatus()
-	case "info":
-		showHAInfo()
-	case "embed":
-		if len(args) < 2 {
-			fmt.Println("Usage: sonic ha embed <output.html>")
-			os.Exit(1)
-		}
-		generateEmbedFile(args[1])
-	case "kiosk":
-		if len(args) < 2 {
-			fmt.Println("Usage: sonic ha kiosk enable|disable")
-			os.Exit(1)
-		}
-		configureKioskMode(args[1])
-	case "refresh":
-		if len(args) < 2 {
-			fmt.Println("Usage: sonic ha refresh <minutes>")
-			os.Exit(1)
-		}
-		configureRefreshRate(args[1])
-	case "version":
-		showHAVersion()
-	case "check":
-		checkHAConnection()
-	default:
-		fmt.Printf("Error: unknown ha command: %s\n", command)
-		os.Exit(1)
-	}
-}
-
-func setupHA(baseURL, apiToken string) {
-	fmt.Printf("Setting up Home Assistant integration with %s...\n", baseURL)
-	
-	haIntegration = homeassistant.NewHAIntegration(baseURL, apiToken)
-	
-	if err := haIntegration.Configure(); err != nil {
-		log.Fatalf("Failed to configure HA integration: %v", err)
-	}
-	
-	fmt.Printf("✓ Home Assistant integration configured\n")
-	
-	// Save configuration
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		log.Printf("Warning: Could not get home directory: %v", err)
-		return
-	}
-	
-	configPath := filepath.Join(homeDir, ".sonic", "ha-config.json")
-	if err := haIntegration.SaveConfig(configPath); err != nil {
-		log.Printf("Warning: Failed to save HA config: %v", err)
-	}
-}
-
-func configureHA() {
-	fmt.Println("Configuring Home Assistant integration...")
-	
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	if err := haIntegration.Configure(); err != nil {
-		log.Fatalf("Failed to configure HA integration: %v", err)
-	}
-	
-	fmt.Printf("✓ Home Assistant integration configured\n")
-}
-
-func showHAStatus() {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	config := haIntegration.GetStatus()
-	fmt.Printf("Home Assistant Status:\n")
-	fmt.Printf("  Base URL: %s\n", config.BaseURL)
-	fmt.Printf("  Status: %s\n", config.Status)
-	fmt.Printf("  Last Checked: %s\n", config.LastChecked)
-	fmt.Printf("  Kiosk Mode: %t\n", config.KioskMode)
-	fmt.Printf("  Refresh Rate: %d minutes\n", config.RefreshRate)
-}
-
-func showHAInfo() {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	info, err := haIntegration.GetHAInfo()
-	if err != nil {
-		log.Fatalf("Failed to get HA info: %v", err)
-	}
-	
-	fmt.Printf("Home Assistant Information:\n")
-	for key, value := range info {
-		fmt.Printf("  %s: %v\n", key, value)
-	}
-}
-
-func generateEmbedFile(outputPath string) {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	fmt.Printf("Generating embed HTML file at %s...\n", outputPath)
-	
-	if err := haIntegration.GenerateEmbedFile(outputPath); err != nil {
-		log.Fatalf("Failed to generate embed file: %v", err)
-	}
-	
-	fmt.Printf("✓ Embed HTML file generated\n")
-}
-
-func configureKioskMode(mode string) {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	if mode != "enable" && mode != "disable" {
-		fmt.Println("Error: mode must be 'enable' or 'disable'")
-		os.Exit(1)
-	}
-	
-	enabled := mode == "enable"
-	haIntegration.SetKioskMode(enabled)
-	
-	fmt.Printf("✓ Kiosk mode %s\n", mode + "d")
-}
-
-func configureRefreshRate(rateStr string) {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	// Simple parsing - in production you'd want better error handling
-	var rate int
-	fmt.Sscanf(rateStr, "%d", &rate)
-	
-	if rate <= 0 {
-		fmt.Println("Error: refresh rate must be positive")
-		os.Exit(1)
-	}
-	
-	haIntegration.SetRefreshRate(rate)
-	
-	fmt.Printf("✓ Refresh rate set to %d minutes\n", rate)
-}
-
-func showHAVersion() {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	version, err := haIntegration.GetHAVersion()
-	if err != nil {
-		log.Fatalf("Failed to get HA version: %v", err)
-	}
-	
-	fmt.Printf("Home Assistant Version: %s\n", version)
-}
-
-func checkHAConnection() {
-	if haIntegration == nil {
-		fmt.Println("Error: HA integration not set up. Run 'sonic ha setup' first.")
-		os.Exit(1)
-	}
-	
-	fmt.Println("Checking Home Assistant connection...")
-	
-	status, err := haIntegration.CheckHAStatus()
-	if err != nil {
-		log.Fatalf("Failed to check HA status: %v", err)
-	}
-	
-	if status {
-		fmt.Println("✅ Home Assistant is accessible")
-	} else {
-		fmt.Println("❌ Home Assistant is not accessible")
-	}
-}
-
 func printHelp() {
 	fmt.Println(`SonicScrewdriver vA2.0.0 - API Central Hub
 
@@ -1863,17 +1641,6 @@ Commands:
   sonic remote ssh setup                           Setup SSH access
   sonic remote samba setup <name> <path>           Setup Samba sharing
   sonic remote info                                Show remote access info
-  
-  # Home Assistant
-  sonic ha setup <url> <token>                  Setup Home Assistant integration
-  sonic ha configure                            Configure HA integration
-  sonic ha status                               Show HA status
-  sonic ha info                                 Show HA instance info
-  sonic ha embed <output.html>                  Generate embed HTML file
-  sonic ha kiosk enable|disable                 Enable/disable kiosk mode
-  sonic ha refresh <minutes>                    Set refresh rate
-  sonic ha version                              Get HA version
-  sonic ha check                                Check HA connection
   
   # Classic Modern Mint
   sonic mint check                                Check installation readiness

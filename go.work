@@ -1,8 +1,0 @@
-go 1.25.0
-
-use (
-	.
-	./code-vault
-	./modules/sonic-express
-	./modules/sonic-home
-)
