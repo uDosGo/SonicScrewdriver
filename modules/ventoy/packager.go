@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sonic-family/sonic-screwdriver/internal/library"
+	"github.com/OkAgentDigital/universal/library"
 )
 
 // Packager handles creating Ventoy-compatible installer bundles
