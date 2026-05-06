@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/OkAgentDigital/universal/library"
+	"github.com/OkAgentDigital/GoExchange/library"
 )
 
 // Packager handles creating Ventoy-compatible installer bundles

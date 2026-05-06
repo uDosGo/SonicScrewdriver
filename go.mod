@@ -1,10 +1,10 @@
-module github.com/sonic-family/sonic-screwdriver
+module github.com/uDosGo/SonicScrewdriver
 
 go 1.25.0
 
-replace github.com/OkAgentDigital/universal => /Users/fredbook/Code/OkAgentDigital/universal
+replace github.com/OkAgentDigital/GoExchange => /Users/fredbook/Code/OkAgentDigital/GoExchange
 
-require github.com/OkAgentDigital/universal v0.0.0-00010101000000-000000000000
+require github.com/OkAgentDigital/GoExchange v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
