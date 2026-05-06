@@ -2,7 +2,7 @@ module github.com/uDosGo/SonicScrewdriver
 
 go 1.25.0
 
-replace github.com/OkAgentDigital/GoExchange => /Users/fredbook/Code/OkAgentDigital/GoExchange
+replace github.com/OkAgentDigital/GoExchange => /home/wizard/Code/GoExchange
 
 require github.com/OkAgentDigital/GoExchange v0.0.0-00010101000000-000000000000
 
