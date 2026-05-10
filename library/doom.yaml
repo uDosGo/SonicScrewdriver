@@ -1,5 +1,0 @@
-name: doom
-version: "1.0"
-title: Doom
-description: Classic FPS in a containerized runtime profile.
-type: game
