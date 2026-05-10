@@ -1,8 +1,6 @@
-# Sonic-Screwdriver Console Controls
+# Sonic-Screwdriver CLI Commands
 
-## 📜 Command Reference
-
-*TARDIS Narrator: LIGHT intensity - themed title only*
+## Command Reference
 
 ### Basic Commands
 
@@ -218,7 +216,7 @@ sonic library list
 sonic config set <key> <value>
 ```
 
-## 🎯 Command Categories
+## Command Categories
 
 ### Core Commands
 - `install`, `start`, `stop`, `list`, `remove` - Game lifecycle
@@ -238,7 +236,7 @@ sonic config set <key> <value>
 - `library` - Game library management
 - `config` - Configuration management
 
-## 📋 Command Structure
+## Command Structure
 
 ```
 sonic <category> <command> [options] [arguments]
@@ -262,7 +260,7 @@ sonic <category> <command> [options] [arguments]
 - `--verbose` - Verbose output (where supported)
 - `--dry-run` - Test without making changes (where supported)
 
-## 💡 Usage Tips
+## Usage Tips
 
 ### Secret Management
 ```bash
@@ -302,7 +300,7 @@ sonic remote ssh setup
 sonic remote samba setup "shared" "/home/user/shared"
 ```
 
-## 🔧 Advanced Usage
+## Advanced Usage
 
 ### Batch Operations
 ```bash
@@ -332,7 +330,7 @@ sonic config set docker.socket "/var/run/docker.sock"
 sonic config set ha.url "http://ha.local:8123"
 ```
 
-## 📚 Help System
+## Help System
 
 ```bash
 # General help
@@ -348,7 +346,7 @@ sonic secret add --help
 sonic ha setup --help
 ```
 
-## 🎨 Classic Modern Integration
+## Classic Modern Integration
 
 ```bash
 # Complete theme setup
@@ -358,7 +356,7 @@ sonic mint apply
 sonic mint doctor
 ```
 
-## 🌐 Network Commands
+## Network Commands
 
 ```bash
 # Remote management
@@ -368,7 +366,7 @@ ssh user@remote-host sonic health --all
 curl -X POST http://localhost:8080/api/secret/get -d '{"name":"key"}'
 ```
 
-## 📈 Monitoring
+## Monitoring
 
 ```bash
 # System health
@@ -383,6 +381,6 @@ sonic node list
 
 ---
 
-*Last Updated: 2026-04-29*
+*Last Updated: 2026-05-10*
 *Sonic-Screwdriver v2.1.0*
 *Command Reference Version: 2.1*

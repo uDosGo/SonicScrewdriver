@@ -1,19 +1,18 @@
-# Sonic-Screwdriver Temporal Missions
+# Sonic-Screwdriver Roadmap
 
-## 🎯 Current Mission: v2.1.0 (2026-04-29)
+## Current Release: v2.1.0 (2026-05-10)
 
 ### v2.1.0 Achievements
-- **Home Assistant Integration**: Complete Time Vortex embed strategy with kiosk temporal mode
-- **Enhanced Encrypted Rune Management**: Rotation with temporal history tracking
-- **Improved Console Controls**: New HA commands and better temporal help matrix
-- **Archival Matrix**: Comprehensive Data Scrolls and materialization guides
+- **Home Assistant Integration**: Complete embed strategy with kiosk mode
+- **Enhanced Secret Management**: Rotation with history tracking
+- **Improved CLI**: New HA commands and better help system
+- **Documentation**: Comprehensive guides and references
+- **Legacy Cleanup**: Removed development artifacts, old docs, and unused templates
 
-## 🗺️ Temporal Roadmap
+## Roadmap
 
 ### v2.1.0 (Current - Q2 2026)
-**Theme**: "Temporal Home Integration"
-
-*TARDIS Narrator: LIGHT intensity - themed titles and section headers only*
+**Theme**: "Home Integration"
 
 #### ✅ Completed
 - Home Assistant deep integration
@@ -21,6 +20,7 @@
 - API connectivity testing
 - CLI commands for HA management
 - Secret rotation with history
+- Legacy artifact cleanup
 
 #### ⏳ In Progress
 - Media scanner implementation
@@ -33,8 +33,6 @@
 - HA addon management
 - Media playback integration
 - Notification system
-
-**Target Completion**: 2026-05-05
 
 ### v2.2.0 (Q3 2026)
 **Theme**: "Advanced Automation"
@@ -88,7 +86,7 @@
 
 **Target Completion**: 2027-03-31
 
-## 📊 Release Cadence
+## Release Cadence
 
 ### Sprint Cycle
 - **Duration**: 1 week
@@ -101,7 +99,7 @@
 - **Minor**: New features, significant improvements
 - **Patch**: Bug fixes, minor enhancements
 
-## 🎯 Strategic Goals
+## Strategic Goals
 
 ### Short-Term (2026)
 1. Complete Home Assistant integration
@@ -124,7 +122,7 @@
 4. Enterprise features
 5. Ecosystem expansion
 
-## 🔧 Technical Priorities
+## Technical Priorities
 
 ### Architecture
 - Maintain modular design
@@ -144,7 +142,7 @@
 - Enhance TUI experience
 - Better error messages
 
-## 📚 Documentation Roadmap
+## Documentation Roadmap
 
 ### Current Documentation
 - ✅ Secret rotation guide
@@ -169,22 +167,7 @@
 - 📝 Migration guides
 - 📝 Best practices
 
-## 🤝 Community & Contribution
-
-### Contribution Goals
-- Open source core components
-- Community plugins system
-- Contribution guidelines
-- Regular contributor meetings
-
-### Roadmap Process
-1. **Ideation**: Community suggestions and internal proposals
-2. **Prioritization**: Quarterly planning sessions
-3. **Implementation**: Sprint-based development
-4. **Review**: Community feedback and testing
-5. **Release**: Regular updates and patches
-
-## 📈 Metrics & Success Criteria
+## Metrics & Success Criteria
 
 ### v2.1.0 Success Metrics
 - Home Assistant integration working
@@ -200,31 +183,8 @@
 - **Issue Resolution**: < 7 days average
 - **Release Frequency**: Quarterly major, monthly minor
 
-## 🔮 Future Considerations
-
-### Emerging Technologies
-- AI and machine learning
-- Voice interfaces
-- Edge computing
-- IoT advancements
-- Security enhancements
-
-### Market Trends
-- Smart home adoption growth
-- Automation demand increase
-- Privacy-focused solutions
-- Open source preference
-- Cloud integration needs
-
-### Competitive Landscape
-- Monitor competing solutions
-- Track feature parity
-- Identify differentiation opportunities
-- Stay ahead of trends
-- Maintain unique value proposition
-
 ---
 
-*Last Updated: 2026-04-29*
+*Last Updated: 2026-05-10*
 *Sonic-Screwdriver v2.1.0*
-*Next Review: 2026-05-05*
+*Next Review: 2026-06-01*

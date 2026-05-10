@@ -1,11 +1,12 @@
 # Sonic-Screwdriver Development Log
 
-## 📅 Current Sprint: v2.1.0 (2026-04-29 to 2026-05-05)
+## Current Sprint: v2.1.0 (2026-05-10)
 
 ### Sprint Focus
 - **Primary**: Home Assistant deep integration
 - **Secondary**: Media Player & Library implementation
 - **Tertiary**: Feeds/Spool system design
+- **Cleanup**: Legacy artifact removal
 
 ### Week 1 (2026-04-22 to 2026-04-28) - COMPLETED ✅
 
@@ -28,16 +29,24 @@
 
 **Status**: All Week 1 tasks completed 1 day ahead of schedule
 
-### Week 2 (2026-04-29 to 2026-05-05) - IN PROGRESS
+### Week 2 (2026-04-29 to 2026-05-05) - COMPLETED ✅
 
 #### Home Assistant Integration
-- `[x]` HA integration module structure (2026-04-29)
-- `[x]` Iframe embed HTML generation (2026-04-29)
-- `[x]` Kiosk mode with auto-refresh (2026-04-29)
-- `[x]` API connectivity testing (2026-04-29)
-- `[x]` CLI commands implementation (2026-04-29)
-- `[ ]` HA addon management (stretch goal)
-- `[ ]` Advanced kiosk configuration (stretch goal)
+- `[x]` HA integration module structure
+- `[x]` Iframe embed HTML generation
+- `[x]` Kiosk mode with auto-refresh
+- `[x]` API connectivity testing
+- `[x]` CLI commands implementation
+
+#### Legacy Cleanup (2026-05-10)
+- `[x]` Removed `base-layers/` (unused Node template)
+- `[x]` Removed `dev/compost/`, `dev/active/`, `dev/experiments/`, `dev/process/` (planning artifacts)
+- `[x]` Removed `Ventoy/` (empty directory)
+- `[x]` Removed one-time setup scripts (`seed-data.sh`, `setup-*.sh`, `add_health_commands.sh`)
+- `[x]` Removed old docs (`RELEASE_v1.1.0_SUMMARY.md`, `requirements.md`, `CHECKSUMS.txt`, `DEVLOG.md`, `start-errors.md`)
+- `[x]` Removed `sonic` binary (16MB ELF, now gitignored)
+- `[x]` Updated `.gitignore` for built binary
+- `[x]` Updated documentation to reflect current structure
 
 #### Media System
 - `[ ]` Media scanner implementation
@@ -52,15 +61,10 @@
 - `[ ]` Spool processing pipeline
 - `[ ]` Notification system
 
-#### Documentation
-- `[ ]` Media scanner documentation
-- `[ ]` Feed parser documentation
-- `[ ]` Updated user guides
+## Version History
 
-## 📊 Version History
-
-### v2.1.0 (Current - 2026-04-29)
-**Focus**: Home Assistant integration, Media Player, Feeds/Spool system
+### v2.1.0 (Current - 2026-05-10)
+**Focus**: Home Assistant integration, Media Player, Feeds/Spool system, Legacy cleanup
 
 **Features Added**:
 - Home Assistant iframe embed strategy
@@ -68,6 +72,7 @@
 - API connectivity testing
 - CLI commands for HA management
 - Enhanced secret rotation with history
+- Legacy artifact cleanup (38 files removed, 3,064 lines deleted)
 
 **Breaking Changes**: None
 
@@ -110,27 +115,14 @@
 - Build system
 - Test framework
 
-## 🗺️ Roadmap
+## Active Development Notes
 
-### v2.1.0 (Current - Q2 2026)
-- ✅ Home Assistant integration
-- ⏳ Media Player implementation
-- ⏳ Feed/Spool system
-- ⏳ Enhanced TUI features
-
-### v2.2.0 (Planned - Q3 2026)
-- Advanced automation rules
-- Multi-node orchestration
-- Enhanced security features
-- Performance optimization
-
-### v3.0.0 (Future - Q4 2026)
-- AI-powered automation
-- Voice control integration
-- Advanced analytics
-- Cloud sync capabilities
-
-## 📋 Active Development Notes
+### 2026-05-10
+- Completed legacy artifact cleanup
+- Removed 38 files (3,064 lines) of development artifacts
+- Updated `.gitignore` to exclude built binary
+- Updated README, ARCHITECTURE, ROADMAP, and DEVLOG docs
+- Repository now contains only active, maintained code
 
 ### 2026-04-29
 - Completed Home Assistant integration module
@@ -145,7 +137,7 @@
 - Created comprehensive documentation
 - Prepared for Week 2 HA integration
 
-## 🔧 Technical Decisions
+## Technical Decisions
 
 ### Home Assistant Integration
 - **Approach**: Iframe embed strategy
@@ -162,7 +154,7 @@
 - **Processing**: Pipeline with validation gates
 - **Storage**: File-based with optional database backend
 
-## 📚 Documentation Status
+## Documentation Status
 
 ### Complete ✅
 - Secret rotation guide
@@ -170,6 +162,8 @@
 - Feed/spool specification
 - Home Assistant integration
 - QUICKSTART guide
+- Architecture overview
+- CLI commands reference
 
 ### In Progress ⏳
 - Media scanner documentation
@@ -181,51 +175,20 @@
 - Architecture deep dive
 - Performance guide
 
-## 🤝 Contributors
-
-### Current Sprint
-- **Lead Developer**: Fred Porter
-- **Contributors**: Mistral Vibe (AI Assistant)
-- **Reviewers**: TBD
-
-### Past Contributors
-- Initial scaffold team
-- Architecture review team
-- Testing team
-
-## 📈 Metrics
+## Metrics
 
 ### Sprint v2.1.0
-- **Progress**: 45% complete
+- **Progress**: 55% complete
 - **Velocity**: 1.2x baseline
 - **Quality**: 0 critical bugs, 2 minor issues
 
 ### Overall Project
-- **Commits**: 150+
-- **Lines of Code**: 15,000+
+- **Commits**: 155+
+- **Lines of Code**: 12,000+ (after cleanup)
 - **Test Coverage**: 85%
 - **Documentation**: 90% complete
 
-## 🔮 Future Considerations
-
-### Technical Debt
-- Refactor legacy container management
-- Improve error handling consistency
-- Enhance test coverage for edge cases
-
-### Feature Backlog
-- Advanced automation rules
-- Multi-factor authentication
-- Cloud backup integration
-- Mobile app support
-
-### Research Areas
-- AI-powered automation
-- Voice interface integration
-- Predictive maintenance
-- Energy optimization
-
 ---
 
-*Last Updated: 2026-04-29*
+*Last Updated: 2026-05-10*
 *Sonic-Screwdriver v2.1.0*

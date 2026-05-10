@@ -4,18 +4,16 @@
 
 Sonic-Screwdriver is a modular platform for managing secrets, APIs, containers, and smart home integrations with a focus on security and extensibility.
 
-*TARDIS Narrator applied: LIGHT intensity* - Themed introduction, technical content unchanged.
-
 ## 📖 Documentation
 
 ### Getting Started
-- **[QUICKSTART.md](QUICKSTART.md)** - Complete setup and usage guide
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture overview
+- **[QUICKSTART.md](QUICKSTART.md)** — Complete setup and usage guide
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System architecture overview
 
 ### Core Features
-- **[docs/CLI_COMMANDS.md](docs/CLI_COMMANDS.md)** - Comprehensive CLI reference
-- **[docs/LIBRARY_FORMAT.md](docs/LIBRARY_FORMAT.md)** - Game library format specification
-- **[docs/SECRET_ROTATION_GUIDE.md](docs/SECRET_ROTATION_GUIDE.md)** - Secret management guide
+- **[docs/CLI_COMMANDS.md](docs/CLI_COMMANDS.md)** — Comprehensive CLI reference
+- **[docs/LIBRARY_FORMAT.md](docs/LIBRARY_FORMAT.md)** — Game library format specification
+- **[docs/SECRET_ROTATION_GUIDE.md](docs/SECRET_ROTATION_GUIDE.md)** — Secret management guide
 
 ### Integrations
 - **Home Assistant**: Built-in integration with iframe embed support
@@ -24,9 +22,9 @@ Sonic-Screwdriver is a modular platform for managing secrets, APIs, containers, 
 - **Remote Access**: VNC, SSH, and Samba support
 
 ### Development
-- **[docs/DEVLOG.md](docs/DEVLOG.md)** - Current development status
-- **[docs/ROADMAP.md](docs/ROADMAP.md)** - Future plans and roadmap
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+- **[docs/DEVLOG.md](docs/DEVLOG.md)** — Current development status
+- **[docs/ROADMAP.md](docs/ROADMAP.md)** — Future plans and roadmap
+- **[CHANGELOG.md](CHANGELOG.md)** — Version history
 
 ## 🎯 Key Features
 
@@ -61,12 +59,27 @@ sonic system check
 sonic --help
 ```
 
-## Narrator Reference
+## Project Structure
 
-This project uses TARDIS Narrator (LIGHT intensity) for themed documentation. Technical instructions remain unchanged for clarity.
+```
+Sonic-Screwdriver/
+├── cmd/sonic/           # Main binary entrypoint
+├── modules/             # Modular components
+│   ├── sonic-express/   # Fast development server
+│   ├── sonic-home/      # Home automation module
+│   └── ventoy/          # Ventoy integration
+├── pkg/api/             # Shared API package
+├── code-vault/          # Go types, proto, API client
+├── installers/          # OS installers
+├── library/             # Game library manifests
+├── docs/                # Documentation
+├── scripts/             # Build and test scripts
+├── test/                # Integration tests
+└── .github/             # CI configuration
+```
 
-| Themed Term | Meaning |
-|-------------|---------|
-| TARDIS Console | Sonic-Screwdriver (the main application) |
+## Related Repositories
 
-*Designed by Wizard. Built by Vibe.*
+- **uDosGo/Connect** (`~/Code/uDosGo`) — uDos development platform
+- **DevStudio** (`~/Code/DevStudio`) — Development environment configuration and tooling
+- **Vault** (`~/Code/Vault`) — Secure storage for notes, maps, feeds, and configuration

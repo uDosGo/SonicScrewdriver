@@ -1,40 +1,29 @@
 # Sonic-Screwdriver Architecture
 
-## 🏗️ TARDIS Systems Overview
+## Overview
 
-Sonic-Screwdriver is a modular TARDIS Console designed for smart home automation, Time Capsule management, and temporal system integration. The architecture follows Classic Modern Mint temporal principles with a focus on modularity, security, and temporal extensibility.
+Sonic-Screwdriver is a modular platform designed for smart home automation, secrets management, and container orchestration. The architecture follows a modular design with a focus on security and extensibility.
 
-*TARDIS Narrator: LIGHT intensity - themed introduction only*
-
-## 📦 Component Architecture
+## Component Architecture
 
 ```
 Sonic-Screwdriver
-├── API Central Hub (Core)
-│   ├── Secret Store
-│   ├── API Proxy
-│   ├── Node Registry
-│   └── Authentication
-├── Integrations
-│   ├── Home Assistant
-│   ├── Media Player
-│   ├── Feed/Spool System
-│   └── Remote Access
-├── Container Management
-│   ├── Docker Runtime
-│   ├── Health Monitoring
-│   └── Lifecycle Management
-├── User Interface
-│   ├── CLI
-│   ├── TUI (Bubble Tea)
-│   └── Web (Future)
-└── Data Layer
-    ├── SQLite State
-    ├── Configuration
-    └── Cache
+├── cmd/sonic/           # Main binary entrypoint
+├── modules/             # Modular components
+│   ├── sonic-express/   # Fast development server
+│   ├── sonic-home/      # Home automation module
+│   └── ventoy/          # Ventoy integration
+├── pkg/api/             # Shared API package
+├── code-vault/          # Go types, proto, API client
+├── installers/          # OS installers
+├── library/             # Game library manifests
+├── docs/                # Documentation
+├── scripts/             # Build and test scripts
+├── test/                # Integration tests
+└── .github/             # CI configuration
 ```
 
-## 🔐 Core Components
+## Core Components
 
 ### 1. Secret Store
 
@@ -48,7 +37,7 @@ Sonic-Screwdriver
 - Backup/restore functionality
 
 **Implementation**:
-- `internal/secrets/secret_store.go`
+- `code-vault/types/state.go`
 - SQLite backend with encryption
 - In-memory cache for performance
 
@@ -64,7 +53,7 @@ Sonic-Screwdriver
 - Health monitoring
 
 **Implementation**:
-- `internal/secrets/proxy.go`
+- `code-vault/api/client.go`
 - Pluggable provider system
 - Circuit breaker pattern
 
@@ -79,7 +68,7 @@ Sonic-Screwdriver
 - Secret access management
 
 **Implementation**:
-- `internal/secrets/node_registry.go`
+- `code-vault/types/manifest.go`
 - JSON-based storage
 - Token-based authentication
 
@@ -94,11 +83,11 @@ Sonic-Screwdriver
 - Resource constraints
 
 **Implementation**:
-- `internal/container/docker.go`
+- `code-vault/types/container.go`
 - Docker SDK integration
 - Health check system
 
-## 🔌 Integration Architecture
+## Integration Architecture
 
 ### Home Assistant Integration
 
@@ -111,7 +100,7 @@ Sonic-Screwdriver
 - Configuration management
 
 **Implementation**:
-- `internal/homeassistant/integration.go`
+- `modules/sonic-home/`
 - HTML iframe generation
 - REST API client
 
@@ -145,7 +134,7 @@ Sonic-Screwdriver
 - Pipeline architecture
 - Event-driven processing
 
-## 🎮 Game Management
+## Game Management
 
 ### Library System
 
@@ -158,7 +147,7 @@ Sonic-Screwdriver
 - Version management
 
 **Implementation**:
-- YAML manifests
+- YAML manifests in `library/`
 - SQLite index
 - Docker-based execution
 
@@ -177,7 +166,7 @@ Sonic-Screwdriver
 - State tracking
 - Health checks
 
-## 📡 Remote Access
+## Remote Access
 
 ### VNC Server
 
@@ -189,7 +178,6 @@ Sonic-Screwdriver
 - Session management
 
 **Implementation**:
-- `internal/remote/vnc.go`
 - TigerVNC integration
 
 ### SSH Access
@@ -218,23 +206,7 @@ Sonic-Screwdriver
 - Samba configuration
 - Share management
 
-## 🎨 Classic Modern Mint
-
-### Theme System
-
-**Purpose**: Classic Modern theme integration
-
-**Features**:
-- Readiness checking
-- Theme installation
-- Theme application
-- Diagnostic tools
-
-**Implementation**:
-- `internal/classicmodern/`
-- SQLite state tracking
-
-## 📁 Data Architecture
+## Data Architecture
 
 ### State Management
 
@@ -278,7 +250,7 @@ Sonic-Screwdriver
 - Memory cache
 - Fallback logic
 
-## 🔒 Security Architecture
+## Security Architecture
 
 ### Encryption
 
@@ -319,7 +291,7 @@ Sonic-Screwdriver
 - Log files
 - Structured logging
 
-## 🧪 Testing Architecture
+## Testing Architecture
 
 ### Unit Tests
 
@@ -360,7 +332,7 @@ Sonic-Screwdriver
 - Health endpoints
 - Status commands
 
-## 📚 Design Principles
+## Design Principles
 
 ### Modularity
 - Clear component boundaries
@@ -387,7 +359,7 @@ Sonic-Screwdriver
 - Configuration-driven
 - Open interfaces
 
-## 🔧 Technical Stack
+## Technical Stack
 
 ### Languages
 - **Primary**: Go (Golang)
@@ -410,7 +382,7 @@ Sonic-Screwdriver
 - Git for version control
 - SQLite for data storage
 
-## 🗺️ Deployment Architecture
+## Deployment Architecture
 
 ### Local Deployment
 ```
@@ -431,7 +403,7 @@ Sonic-Screwdriver → HA API → Home Assistant
 Iframe Embed → Browser
 ```
 
-## 📈 Performance Considerations
+## Performance Considerations
 
 ### Optimization Areas
 - Secret cache for frequent access
@@ -444,7 +416,7 @@ Iframe Embed → Browser
 - Stateless components where possible
 - Resource constraints for containers
 
-## 🔮 Future Architecture Evolution
+## Future Architecture Evolution
 
 ### v2.2.0 Plans
 - Microservices architecture
@@ -460,6 +432,6 @@ Iframe Embed → Browser
 
 ---
 
-*Last Updated: 2026-04-29*
+*Last Updated: 2026-05-10*
 *Sonic-Screwdriver v2.1.0*
 *Architecture Version: 2.1*
