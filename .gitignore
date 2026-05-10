@@ -77,3 +77,6 @@ agent-transcripts/
 /temp/
 tmp/
 temp/
+
+# Built binary
+/sonic
