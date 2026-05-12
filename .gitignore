@@ -80,3 +80,5 @@ temp/
 
 # Built binary
 /sonic
+sonic-bin
+sonic
