@@ -1,47 +1,23 @@
-# Sonic-Screwdriver v2.1.0
+# Sonic-Screwdriver v1.1.0
 
-## TARDIS Console: API Central Hub for Smart Home Automation
+## Unified System Toolkit
 
-Sonic-Screwdriver is a modular platform for managing secrets, APIs, containers, and smart home integrations with a focus on security and extensibility.
+Sonic-Screwdriver is a Go CLI toolkit for system administration — USB installation, Docker container management, secret storage, device cataloguing, and knowledge source querying.
 
-## 📖 Documentation
+## 🎯 What It Does
 
-### Getting Started
-- **[QUICKSTART.md](QUICKSTART.md)** — Complete setup and usage guide
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System architecture overview
-
-### Core Features
-- **[docs/CLI_COMMANDS.md](docs/CLI_COMMANDS.md)** — Comprehensive CLI reference
-- **[docs/LIBRARY_FORMAT.md](docs/LIBRARY_FORMAT.md)** — Game library format specification
-- **[docs/SECRET_ROTATION_GUIDE.md](docs/SECRET_ROTATION_GUIDE.md)** — Secret management guide
-
-### Integrations
-- **Home Assistant**: Built-in integration with iframe embed support
-- **Media Player**: Local media management system
-- **Feed/Spool**: Content aggregation and processing
-- **Remote Access**: VNC, SSH, and Samba support
-
-### Development
-- **[docs/DEVLOG.md](docs/DEVLOG.md)** — Current development status
-- **[docs/ROADMAP.md](docs/ROADMAP.md)** — Future plans and roadmap
-- **[CHANGELOG.md](CHANGELOG.md)** — Version history
-
-## 🎯 Key Features
-
-### v2.1.0 Highlights
-- ✅ Home Assistant deep integration
-- ✅ Iframe embed strategy with kiosk mode
-- ✅ Enhanced secret rotation with history
-- ✅ Comprehensive CLI command set
-- ✅ Complete documentation overhaul
-
-### Core Capabilities
-- **Secret Store**: AES-256-GCM encrypted secret management
-- **API Proxy**: Secure proxy with rate limiting
-- **Node Registry**: Distributed node management
-- **Container Runtime**: Docker-based game management
-- **TUI Interface**: Interactive terminal interface
-- **CLI Commands**: Comprehensive command-line tools
+```
+sonic container <list|start|stop|restart|remove|health>  — Docker container management
+sonic usb <list|prepare|install|full-install>             — USB installer (ISO download + write)
+sonic vault <get|set|list|rotate|history>                 — Encrypted secret store (via uServer)
+sonic gui                                                  — Web GUI dashboard
+sonic catalogue <list|find>                               — Device catalogue (scans Vaults + uCode repos)
+sonic knowledge <sources|query>                           — Knowledge source querying
+sonic library <list|info|validate>                        — Game library index management
+sonic ventoy <create|validate|info>                       — .she bundle packaging
+sonic remote <vnc|ssh|samba>                              — Remote access setup
+sonic mint <check|install|apply|status|info|doctor>       — Classic Modern Mint readiness
+```
 
 ## 🚀 Quick Start
 
@@ -49,37 +25,43 @@ Sonic-Screwdriver is a modular platform for managing secrets, APIs, containers, 
 # Build from source
 go build -o sonic ./cmd/sonic
 
-# Or use the installer
-./install.sh
-
-# Check system
-sonic system check
-
 # View help
 sonic --help
 ```
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
-Sonic-Screwdriver/
-├── cmd/sonic/           # Main binary entrypoint
-├── modules/             # Modular components
-│   ├── sonic-express/   # Fast development server
-│   ├── sonic-home/      # Home automation module
-│   └── ventoy/          # Ventoy integration
-├── pkg/api/             # Shared API package
-├── code-vault/          # Go types, proto, API client
-├── installers/          # OS installers
-├── library/             # Game library manifests
-├── docs/                # Documentation
-├── scripts/             # Build and test scripts
-├── test/                # Integration tests
-└── .github/             # CI configuration
+SonicScrewdriver/
+├── cmd/sonic/              # CLI entrypoint
+├── pkg/
+│   ├── container/          # Docker runtime wrapper
+│   ├── vault/              # Secret store (wraps uServer/pkg/secrets)
+│   ├── disk/               # Block device & partition management
+│   ├── iso/                # ISO downloader & writer
+│   ├── usb/                # USB installer
+│   ├── gui/                # Web GUI (embedded HTML/JS)
+│   ├── catalogue/          # Device catalogue
+│   ├── knowledge/          # Knowledge source querying
+│   ├── library/            # Game library index & manifest validation
+│   ├── ventoy/             # .she bundle packager
+│   ├── remote/             # VNC/SSH/Samba setup
+│   └── classicmodern/      # Classic Modern Mint readiness
+├── docs/                   # Documentation
+├── test/                   # Integration tests
+└── version                 # v1.1.0
 ```
+
+## 🔗 Dependencies
+
+- **uServer** (`github.com/uDosGo/uServer/pkg/secrets`) — AES-256-GCM encrypted SQLite secret store
+- **Docker** — Container runtime (optional, for container commands)
+
+## 📖 Documentation
+
+- **[docs/legacy/](docs/legacy/)** — Archived documentation from earlier aspirational scope
 
 ## Related Repositories
 
-- **uDosGo/Connect** (`~/Code/uDosGo`) — uDos development platform
-- **DevStudio** (`~/Code/DevStudio`) — Development environment configuration and tooling
-- **Vault** (`~/Code/Vault`) — Secure storage for notes, maps, feeds, and configuration
+- **uServer** — Backend services, secret store, API central
+- **DevStudio** — Development environment configuration and tooling
