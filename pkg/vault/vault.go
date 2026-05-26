@@ -80,7 +80,10 @@ func (v *Vault) History(key string) ([]map[string]string, error) {
 func expandPath(path string) string {
 	if len(path) > 0 && path[0] == '~' {
 		home, _ := os.UserHomeDir()
-		return filepath.Join(home, path[2:])
+		if len(path) > 2 {
+			return filepath.Join(home, path[2:])
+		}
+		return home
 	}
 	return path
 }

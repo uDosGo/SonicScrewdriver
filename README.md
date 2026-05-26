@@ -1,4 +1,4 @@
-# Sonic-Screwdriver v1.1.0
+# Sonic-Screwdriver v1.2.0
 
 ## Unified System Toolkit
 

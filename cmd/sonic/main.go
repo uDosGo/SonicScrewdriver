@@ -11,12 +11,14 @@ import (
 	"strings"
 
 	"github.com/uDosGo/SonicScrewdriver/pkg/catalogue"
+	"github.com/uDosGo/SonicScrewdriver/pkg/classicmodern"
 	"github.com/uDosGo/SonicScrewdriver/pkg/container"
 	"github.com/uDosGo/SonicScrewdriver/pkg/disk"
 	"github.com/uDosGo/SonicScrewdriver/pkg/gui"
 	"github.com/uDosGo/SonicScrewdriver/pkg/iso"
 	"github.com/uDosGo/SonicScrewdriver/pkg/knowledge"
 	"github.com/uDosGo/SonicScrewdriver/pkg/library"
+	"github.com/uDosGo/SonicScrewdriver/pkg/remote"
 	"github.com/uDosGo/SonicScrewdriver/pkg/usb"
 	"github.com/uDosGo/SonicScrewdriver/pkg/vault"
 	"github.com/uDosGo/SonicScrewdriver/pkg/ventoy"
@@ -48,6 +50,10 @@ func main() {
 		runLibrary(args)
 	case "ventoy":
 		runVentoy(args)
+	case "remote", "r":
+		runRemote(args)
+	case "mint":
+		runMint(args)
 	case "help", "h", "--help", "-h":
 		printUsage()
 	default:
@@ -71,6 +77,8 @@ Commands:
   catalogue, cat   Browse uCode device catalogue (list, find)
   knowledge, k     Query knowledge sources (sources, query)
   library, lib     Library index management (list, info, validate)
+  remote, r        Remote access (vnc, ssh, samba, info)
+  mint             Classic Modern Mint readiness (check, doctor, info, apply)
   ventoy           Ventoy bundle packaging (create, validate, info)
   help, h          Show this help
 
@@ -578,6 +586,140 @@ func runVentoy(args []string) {
 
 	default:
 		fmt.Printf("Unknown ventoy action: %s\n", args[0])
+	}
+}
+
+// ─── Remote ───────────────────────────────────────────────────────────────────
+
+func runRemote(args []string) {
+	if len(args) < 1 {
+		fmt.Println("Usage: sonic remote <vnc|ssh|samba|info> [flags]")
+		return
+	}
+
+	switch args[0] {
+	case "vnc":
+		port := 5901
+		password := "sonic"
+		geometry := "1280x720"
+		for i := 1; i < len(args); i++ {
+			switch args[i] {
+			case "--port":
+				if i+1 < len(args) {
+					fmt.Sscanf(args[i+1], "%d", &port)
+					i++
+				}
+			case "--password":
+				if i+1 < len(args) {
+					password = args[i+1]
+					i++
+				}
+			case "--geometry":
+				if i+1 < len(args) {
+					geometry = args[i+1]
+					i++
+				}
+			}
+		}
+
+		server := remote.NewVNCServer(port, password, geometry)
+		if err := server.SetupVNC(); err != nil {
+			log.Fatalf("VNC setup failed: %v", err)
+		}
+		if err := server.StartVNC(); err != nil {
+			log.Fatalf("VNC start failed: %v", err)
+		}
+		fmt.Println("VNC server started.")
+
+	case "ssh":
+		if err := remote.SetupSSH(); err != nil {
+			log.Fatalf("SSH setup failed: %v", err)
+		}
+		fmt.Println("SSH service running.")
+
+	case "samba":
+		shareName := "shared"
+		sharePath := "/home/shared"
+		for i := 1; i < len(args); i++ {
+			switch args[i] {
+			case "--name":
+				if i+1 < len(args) {
+					shareName = args[i+1]
+					i++
+				}
+			case "--path":
+				if i+1 < len(args) {
+					sharePath = args[i+1]
+					i++
+				}
+			}
+		}
+		if err := remote.SetupSamba(shareName, sharePath); err != nil {
+			log.Fatalf("Samba setup failed: %v", err)
+		}
+		fmt.Println("Samba file sharing set up.")
+
+	case "info":
+		fmt.Println(remote.GetRemoteAccessInfo())
+
+	default:
+		fmt.Printf("Unknown remote action: %s\n", args[0])
+	}
+}
+
+// ─── Mint ─────────────────────────────────────────────────────────────────────
+
+func runMint(args []string) {
+	if len(args) < 1 {
+		fmt.Println("Usage: sonic mint <check|doctor|info|apply> [component]")
+		return
+	}
+
+	// Classic Modern Mint doesn't need a DB connection for basic operations
+	checker := classicmodern.NewReadinessChecker(nil)
+
+	switch args[0] {
+	case "check":
+		report, err := checker.GenerateInstallationReport()
+		if err != nil {
+			log.Fatalf("Readiness check failed: %v", err)
+		}
+		fmt.Println(report)
+
+	case "doctor":
+		component := "classic-modern"
+		if len(args) > 1 {
+			component = args[1]
+		}
+		check, err := checker.PerformCheck()
+		if err != nil {
+			log.Fatalf("Doctor check failed: %v", err)
+		}
+		if check.ThemeReady && check.IconsReady && check.FontsReady && check.OBFValid && check.DependenciesReady {
+			fmt.Printf("✅ Component '%s' is ready.\n", component)
+		} else {
+			fmt.Printf("⚠️  Component '%s' has issues:\n", component)
+			for _, issue := range check.Issues {
+				fmt.Printf("  - %s\n", issue)
+			}
+		}
+
+	case "info":
+		info, err := checker.GetThemeInfo()
+		if err != nil {
+			log.Fatalf("Failed to get theme info: %v", err)
+		}
+		b, _ := json.MarshalIndent(info, "", "  ")
+		fmt.Println(string(b))
+
+	case "apply":
+		if err := checker.ApplyTheme(); err != nil {
+			log.Fatalf("Failed to apply theme: %v", err)
+		}
+		fmt.Println("Classic Modern theme applied.")
+
+	default:
+		fmt.Printf("Unknown mint action: %s\n", args[0])
 	}
 }
 
