@@ -14,10 +14,13 @@ import (
 	"github.com/uDosGo/SonicScrewdriver/pkg/classicmodern"
 	"github.com/uDosGo/SonicScrewdriver/pkg/container"
 	"github.com/uDosGo/SonicScrewdriver/pkg/disk"
+	"github.com/uDosGo/SonicScrewdriver/pkg/driver"
 	"github.com/uDosGo/SonicScrewdriver/pkg/gui"
 	"github.com/uDosGo/SonicScrewdriver/pkg/iso"
 	"github.com/uDosGo/SonicScrewdriver/pkg/knowledge"
 	"github.com/uDosGo/SonicScrewdriver/pkg/library"
+	"github.com/uDosGo/SonicScrewdriver/pkg/recovery"
+	"github.com/uDosGo/SonicScrewdriver/pkg/reflash"
 	"github.com/uDosGo/SonicScrewdriver/pkg/remote"
 	"github.com/uDosGo/SonicScrewdriver/pkg/usb"
 	"github.com/uDosGo/SonicScrewdriver/pkg/vault"
@@ -54,6 +57,12 @@ func main() {
 		runRemote(args)
 	case "mint":
 		runMint(args)
+	case "reflash", "rf":
+		runReflash(args)
+	case "driver", "dr":
+		runDriver(args)
+	case "recovery", "rec":
+		runRecovery(args)
 	case "help", "h", "--help", "-h":
 		printUsage()
 	default:
@@ -64,7 +73,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SonicScrewdriver — Unified System Toolkit
+	fmt.Print(`SonicScrewdriver — Unified System Toolkit
 
 Usage:
   sonic <command> [arguments]
@@ -80,6 +89,9 @@ Commands:
   remote, r        Remote access (vnc, ssh, samba, info)
   mint             Classic Modern Mint readiness (check, doctor, info, apply)
   ventoy           Ventoy bundle packaging (create, validate, info)
+  reflash, rf      Device firmware flashing (list, flash, devices, download)
+  driver, dr       Driver tracking and version management (list, register, check)
+  recovery, rec    Device backup and restore (backup, restore, list, export)
   help, h          Show this help
 
 Examples:
@@ -92,6 +104,10 @@ Examples:
   sonic gui
   sonic catalogue list
   sonic knowledge query "docker setup"
+  sonic reflash list
+  sonic reflash flash --device /dev/ttyUSB0 --firmware firmware.bin
+  sonic driver list
+  sonic recovery backup --device /dev/sda --type firmware
 `)
 }
 
@@ -720,6 +736,318 @@ func runMint(args []string) {
 
 	default:
 		fmt.Printf("Unknown mint action: %s\n", args[0])
+	}
+}
+
+// ─── Reflash ──────────────────────────────────────────────────────────────────
+
+func runReflash(args []string) {
+	if len(args) < 1 {
+		fmt.Println("Usage: sonic reflash <list|flash|devices|download> [flags]")
+		return
+	}
+
+	flasher := reflash.New()
+
+	switch args[0] {
+	case "list", "ls":
+		devices, err := flasher.ListSupportedDevices()
+		if err != nil {
+			log.Fatalf("Failed to list devices: %v", err)
+		}
+		if len(devices) == 0 {
+			fmt.Println("No supported devices in library.")
+			return
+		}
+		fmt.Println("Supported Devices:")
+		for _, d := range devices {
+			fmt.Printf("  %s [%s] — %s %s\n", d.Name, d.Type, d.Manufacturer, d.Model)
+			fmt.Printf("    Methods: %v | Protocols: %v\n", d.Methods, d.Protocols)
+			fmt.Printf("    Max Size: %s | Voltage: %s\n", d.MaxSize, d.Voltage)
+		}
+
+	case "flash":
+		config := reflash.FlashConfig{}
+		for i := 1; i < len(args); i++ {
+			switch args[i] {
+			case "--device":
+				if i+1 < len(args) {
+					config.Device = args[i+1]
+					i++
+				}
+			case "--firmware":
+				if i+1 < len(args) {
+					config.Firmware = args[i+1]
+					i++
+				}
+			case "--method":
+				if i+1 < len(args) {
+					config.Method = reflash.FlashMethod(args[i+1])
+					i++
+				}
+			case "--offset":
+				if i+1 < len(args) {
+					config.Offset = args[i+1]
+					i++
+				}
+			case "--baud":
+				if i+1 < len(args) {
+					fmt.Sscanf(args[i+1], "%d", &config.BaudRate)
+					i++
+				}
+			case "--probe":
+				if i+1 < len(args) {
+					config.Probe = args[i+1]
+					i++
+				}
+			case "--verify":
+				config.Verify = true
+			case "--dry-run":
+				config.DryRun = true
+			}
+		}
+		if config.Device == "" {
+			log.Fatal("--device is required")
+		}
+		if config.Firmware == "" {
+			log.Fatal("--firmware is required")
+		}
+		result, err := flasher.Flash(config)
+		if err != nil {
+			log.Fatalf("Flash failed: %v", err)
+		}
+		b, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Println(string(b))
+
+	case "devices":
+		devices, err := flasher.ListSupportedDevices()
+		if err != nil {
+			log.Fatalf("Failed to list devices: %v", err)
+		}
+		b, _ := json.MarshalIndent(devices, "", "  ")
+		fmt.Println(string(b))
+
+	case "download":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic reflash download <url> [dest-dir]")
+		}
+		destDir := "."
+		if len(args) > 2 {
+			destDir = args[2]
+		}
+		path, err := flasher.DownloadFirmware(args[1], destDir)
+		if err != nil {
+			log.Fatalf("Download failed: %v", err)
+		}
+		fmt.Printf("Firmware downloaded to: %s\n", path)
+
+	default:
+		fmt.Printf("Unknown reflash action: %s\n", args[0])
+	}
+}
+
+// ─── Driver ───────────────────────────────────────────────────────────────────
+
+func runDriver(args []string) {
+	manager := driver.NewManager()
+	if err := manager.Load(); err != nil {
+		log.Fatalf("Failed to load driver database: %v", err)
+	}
+
+	if len(args) < 1 {
+		fmt.Println("Usage: sonic driver <list|register|check|detect|info> [name]")
+		return
+	}
+
+	switch args[0] {
+	case "list", "ls":
+		drivers := manager.List("")
+		if len(drivers) == 0 {
+			// Load defaults
+			for _, d := range driver.GetDefaultDrivers() {
+				manager.Register(d)
+			}
+			drivers = manager.List("")
+		}
+		fmt.Println("Registered Drivers:")
+		for _, d := range drivers {
+			status := "❌"
+			if d.Installed {
+				status = "✅"
+			}
+			fmt.Printf("  %s %s [%s] v%s — %s\n", status, d.Name, d.Type, d.Version, d.Description)
+		}
+
+	case "register":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic driver register <name>")
+		}
+		// Look up in defaults
+		for _, d := range driver.GetDefaultDrivers() {
+			if d.Name == args[1] {
+				if err := manager.Register(d); err != nil {
+					log.Fatalf("Failed to register driver: %v", err)
+				}
+				fmt.Printf("Driver '%s' registered.\n", args[1])
+				return
+			}
+		}
+		log.Fatalf("Driver '%s' not found in default catalogue", args[1])
+
+	case "check":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic driver check <name>")
+		}
+		installed, err := manager.CheckInstalled(args[1])
+		if err != nil {
+			log.Fatalf("Check failed: %v", err)
+		}
+		if installed {
+			version, _ := manager.GetVersion(args[1])
+			fmt.Printf("✅ Driver '%s' is installed (v%s)\n", args[1], version)
+		} else {
+			fmt.Printf("❌ Driver '%s' is not installed\n", args[1])
+		}
+
+	case "detect":
+		found, err := manager.DetectInstalledDrivers()
+		if err != nil {
+			log.Fatalf("Detection failed: %v", err)
+		}
+		if len(found) == 0 {
+			fmt.Println("No known drivers detected on system.")
+			return
+		}
+		fmt.Println("Detected installed drivers:")
+		for _, name := range found {
+			fmt.Printf("  ✅ %s\n", name)
+		}
+
+	case "info":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic driver info <name>")
+		}
+		d, err := manager.Get(args[1])
+		if err != nil {
+			log.Fatalf("Driver not found: %v", err)
+		}
+		b, _ := json.MarshalIndent(d, "", "  ")
+		fmt.Println(string(b))
+
+	default:
+		fmt.Printf("Unknown driver action: %s\n", args[0])
+	}
+}
+
+// ─── Recovery ─────────────────────────────────────────────────────────────────
+
+func runRecovery(args []string) {
+	manager := recovery.NewManager()
+	if err := manager.Load(); err != nil {
+		log.Fatalf("Failed to load backup index: %v", err)
+	}
+
+	if len(args) < 1 {
+		fmt.Println("Usage: sonic recovery <backup|restore|list|export|import|delete> [flags]")
+		return
+	}
+
+	switch args[0] {
+	case "backup":
+		device := ""
+		backupType := recovery.BackupFirmware
+		description := ""
+		for i := 1; i < len(args); i++ {
+			switch args[i] {
+			case "--device":
+				if i+1 < len(args) {
+					device = args[i+1]
+					i++
+				}
+			case "--type":
+				if i+1 < len(args) {
+					backupType = recovery.BackupType(args[i+1])
+					i++
+				}
+			case "--description":
+				if i+1 < len(args) {
+					description = args[i+1]
+					i++
+				}
+			}
+		}
+		if device == "" {
+			log.Fatal("--device is required")
+		}
+		record, err := manager.BackupDevice(device, backupType, description)
+		if err != nil {
+			log.Fatalf("Backup failed: %v", err)
+		}
+		b, _ := json.MarshalIndent(record, "", "  ")
+		fmt.Println(string(b))
+
+	case "restore":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic recovery restore <backup-id> [target-device]")
+		}
+		target := args[1]
+		if len(args) > 2 {
+			target = args[2]
+		}
+		if err := manager.RestoreDevice(args[1], target); err != nil {
+			log.Fatalf("Restore failed: %v", err)
+		}
+		fmt.Printf("Device restored from backup '%s'.\n", args[1])
+
+	case "list", "ls":
+		filter := ""
+		if len(args) > 1 {
+			filter = args[1]
+		}
+		records := manager.ListBackups(filter)
+		if len(records) == 0 {
+			fmt.Println("No backups found.")
+			return
+		}
+		fmt.Println("Backups:")
+		for _, r := range records {
+			fmt.Printf("  %s — %s [%s] %s (%s)\n", r.ID, r.Device, r.Type, r.Description, r.CreatedAt)
+		}
+
+	case "export":
+		if len(args) < 3 {
+			log.Fatal("Usage: sonic recovery export <backup-id> <output-path>")
+		}
+		if err := manager.ExportBackup(args[1], args[2]); err != nil {
+			log.Fatalf("Export failed: %v", err)
+		}
+		fmt.Printf("Backup '%s' exported to %s.\n", args[1], args[2])
+
+	case "import":
+		if len(args) < 3 {
+			log.Fatal("Usage: sonic recovery import <file-path> <device-name> [backup-type]")
+		}
+		backupType := recovery.BackupFirmware
+		if len(args) > 3 {
+			backupType = recovery.BackupType(args[3])
+		}
+		record, err := manager.ImportBackup(args[1], args[2], backupType)
+		if err != nil {
+			log.Fatalf("Import failed: %v", err)
+		}
+		fmt.Printf("Backup imported: %s\n", record.ID)
+
+	case "delete":
+		if len(args) < 2 {
+			log.Fatal("Usage: sonic recovery delete <backup-id>")
+		}
+		if err := manager.DeleteBackup(args[1]); err != nil {
+			log.Fatalf("Delete failed: %v", err)
+		}
+		fmt.Printf("Backup '%s' deleted.\n", args[1])
+
+	default:
+		fmt.Printf("Unknown recovery action: %s\n", args[0])
 	}
 }
 
