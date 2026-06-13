@@ -1,7 +1,9 @@
-// Command sonic is the unified CLI for the SonicScrewdriver system.
+// Command sonic is the LEGACY v1 CLI for the SonicScrewdriver system (Go).
+// This is preserved for backward compatibility. The active v2 CLI is in cli/ (Python).
 // It provides container management, USB installation, secret vault access,
 // device catalogue browsing, knowledge queries, and a web GUI.
 package main
+
 
 import (
 	"encoding/json"

@@ -1,29 +1,27 @@
-# Sonic-Screwdriver v1.2.0
+# SonicScrewdriver v2.0.0
 
-## Unified System Toolkit
+## Universal USB Bootloader & System Toolkit
 
-Sonic-Screwdriver is a Go CLI toolkit for system administration — USB installation, Docker container management, secret storage, device cataloguing, and knowledge source querying.
+SonicScrewdriver v2 is a **Python CLI + C bootloader** for creating bootable USB drives, managing device firmware, enrolling security keys, and deploying Linux Mint systems. The legacy Go v1 CLI is preserved in `cmd/sonic/` for backward compatibility.
 
-## 🎯 What It Does
+## 🎯 What It Does (v2 Python CLI)
 
 ```
-sonic container <list|start|stop|restart|remove|health>  — Docker container management
-sonic usb <list|prepare|install|full-install>             — USB installer (ISO download + write)
-sonic vault <get|set|list|rotate|history>                 — Encrypted secret store (via uServer)
-sonic gui                                                  — Web GUI dashboard
-sonic catalogue <list|find>                               — Device catalogue (scans Vaults + uCode repos)
-sonic knowledge <sources|query>                           — Knowledge source querying
-sonic library <list|info|validate>                        — Game library index management
-sonic ventoy <create|validate|info>                       — .she bundle packaging
-sonic remote <vnc|ssh|samba>                              — Remote access setup
-sonic mint <check|install|apply|status|info|doctor>       — Classic Modern Mint readiness
+sonic usb create <device>              — Create triple-partition USB (ESP + ext4 + exFAT)
+sonic security enroll <type>           — Enroll FIDO2/U2F, GPG, or SSH keys
+sonic mint <check|build|apply>         — Linux Mint ISO customization & deployment
+sonic mesh init|join <network>         — Peer-to-peer mesh networking
+sonic chasis launch <game>             — Game library management
+sonic bootloader install <device>      — Install SonicScrewloader to USB
+sonic device scan|identify|lookup      — Device library management
+sonic device add|remove|repurpose      — CRUD + router repurposing
 ```
 
 ## 🚀 Quick Start
 
 ```bash
-# Build from source
-go build -o sonic ./cmd/sonic
+# Install Python CLI
+cd cli && pip install -e .
 
 # View help
 sonic --help
@@ -33,35 +31,35 @@ sonic --help
 
 ```
 SonicScrewdriver/
-├── cmd/sonic/              # CLI entrypoint
-├── pkg/
-│   ├── container/          # Docker runtime wrapper
-│   ├── vault/              # Secret store (wraps uServer/pkg/secrets)
-│   ├── disk/               # Block device & partition management
-│   ├── iso/                # ISO downloader & writer
-│   ├── usb/                # USB installer
-│   ├── gui/                # Web GUI (embedded HTML/JS)
-│   ├── catalogue/          # Device catalogue
-│   ├── knowledge/          # Knowledge source querying
-│   ├── library/            # Game library index & manifest validation
-│   ├── ventoy/             # .she bundle packager
-│   ├── remote/             # VNC/SSH/Samba setup
-│   └── classicmodern/      # Classic Modern Mint readiness
+├── bootloader/             # C/asm bootloader (Teletext, UEFI, BIOS)
+│   ├── src/                # teletext.c, framebuffer.c, detect.c, menu.c, chainload.c
+│   ├── include/            # teletext.h, detect.h, menu.h
+│   ├── config/menus/       # YAML menu configs (mac.yaml, pc.yaml, bios.yaml)
+│   └── Makefile            # UEFI (gnu-efi) + BIOS targets
+├── cli/                    # Python CLI (v2)
+│   ├── sonic/              # CLI modules (usb, security, mint, mesh, chasis, bootloader, device)
+│   │   └── data/devices/   # YAML device entries (PCs, routers, ESP32)
+│   └── setup.py            # v2.0.0
+├── mint/                   # Linux Mint ISO build system
+│   ├── build-iso.sh        # Full ISO build pipeline
+│   ├── chroot-customize.sh # Hostname, locale, user, desktop config
+│   ├── install-sonic.sh    # Sonic CLI + dependencies
+│   └── overlay/            # Plymouth theme, skel, backgrounds
+├── recovery/               # Recovery tools
+│   └── scripts/            # disk-repair, password-reset, data-recovery, memtest
+├── cmd/sonic/              # Legacy Go CLI (v1, preserved for backward compat)
+├── pkg/                    # Legacy Go packages (v1)
 ├── docs/                   # Documentation
-├── test/                   # Integration tests
-└── version                 # v1.1.0
+└── version                 # v2.0.0
 ```
-
-## 🔗 Dependencies
-
-- **uServer** (`github.com/uDosGo/uServer/pkg/secrets`) — AES-256-GCM encrypted SQLite secret store
-- **Docker** — Container runtime (optional, for container commands)
 
 ## 📖 Documentation
 
+- **[docs/USB-CREATION.md](docs/USB-CREATION.md)** — Full USB creation guide
 - **[docs/legacy/](docs/legacy/)** — Archived documentation from earlier aspirational scope
 
 ## Related Repositories
 
 - **uServer** — Backend services, secret store, API central
 - **DevStudio** — Development environment configuration and tooling
+
