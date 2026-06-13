@@ -1,3 +1,11 @@
+---
+title: "Classic Modern Mint — Complete Design Specification Sheet"
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: specification
+tags: [sonicscrewdriver, specification]
+description: "| Property            | Value                              |"
+---
 # Classic Modern Mint — Complete Design Specification Sheet
 
 ## 📋 Document Control

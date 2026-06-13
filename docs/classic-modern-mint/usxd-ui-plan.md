@@ -1,3 +1,11 @@
+---
+title: "Output:"
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: plan
+tags: [sonicscrewdriver, surface, usx]
+description: "USXD UI Plan for Sonic Screwdriver on Classic Modern Mint"
+---
 USXD UI Plan for Sonic Screwdriver on Classic Modern Mint
 
 ## 🎯 Core Design Philosophy

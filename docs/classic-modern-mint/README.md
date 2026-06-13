@@ -1,3 +1,11 @@
+---
+title: "Expected: "Valid Sonic package — 0 errors""
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: readme
+tags: [sonicscrewdriver]
+description: "Classic Modern for Linux Mint"
+---
 Classic Modern for Linux Mint  
 Sonic-Screwdriver Deployment Plan
 

@@ -1,3 +1,11 @@
+---
+title: "Classic Modern Mint — Complete Setup Guide"
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: guide
+tags: [guide, sonicscrewdriver]
+description: "> **Last Updated:** 2026-05-12"
+---
 # Classic Modern Mint — Complete Setup Guide
 
 > **Version:** 1.0.0  

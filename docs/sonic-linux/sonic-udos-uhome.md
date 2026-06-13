@@ -1,3 +1,11 @@
+---
+title: "🐝 Architecture Clarification: uDos Swarm Orchestration + Sonic API Central Hub"
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: architecture
+tags: [cli, homenest, sonic, sonicscrewdriver, udo, uhome]
+description: "| Component             | Role                         | Responsibility                                              ..."
+---
 # 🐝 Architecture Clarification: uDos Swarm Orchestration + Sonic API Central Hub
 
 ## Core Principle

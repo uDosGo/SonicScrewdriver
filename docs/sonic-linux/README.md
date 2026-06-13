@@ -1,3 +1,11 @@
+---
+title: "Sonic-Screwdriver — Minimal OS Installation Brief"
+status: draft
+last_updated: 2026-05-20T22:32:15+10:00
+category: readme
+tags: [cli, sonic, sonicscrewdriver]
+description: "| Property              | Value                                                |"
+---
 # Sonic-Screwdriver — Minimal OS Installation Brief
 
 ## 📋 Document Control

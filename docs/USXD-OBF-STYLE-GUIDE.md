@@ -1,3 +1,11 @@
+---
+title: "USXD OBF Style Guide - Classic Modern Mint Edition"
+status: draft
+last_updated: 2026-04-20T00:57:28+10:00
+category: guide
+tags: [character-set, guide, obf, sonicscrewdriver, surface, usx]
+description: "**Sonic Family Design System** | **uDosConnect Integration** | **Ventoy Compatibility**"
+---
 # USXD OBF Style Guide - Classic Modern Mint Edition
 
 **Sonic Family Design System** | **uDosConnect Integration** | **Ventoy Compatibility**
