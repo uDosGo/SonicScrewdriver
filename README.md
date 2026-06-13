@@ -2,7 +2,8 @@
 
 ## Universal USB Bootloader & System Toolkit
 
-SonicScrewdriver v2 is a **Python CLI + C bootloader** for creating bootable USB drives, managing device firmware, enrolling security keys, and deploying Linux Mint systems. The legacy Go v1 CLI is preserved in `cmd/sonic/` for backward compatibility.
+SonicScrewdriver v2 is a **Python CLI + C bootloader** for creating bootable USB drives, managing device firmware, enrolling security keys, and deploying Linux Mint systems.
+
 
 ## 🎯 What It Does (v2 Python CLI)
 
@@ -47,8 +48,7 @@ SonicScrewdriver/
 │   └── overlay/            # Plymouth theme, skel, backgrounds
 ├── recovery/               # Recovery tools
 │   └── scripts/            # disk-repair, password-reset, data-recovery, memtest
-├── cmd/sonic/              # Legacy Go CLI (v1, preserved for backward compat)
-├── pkg/                    # Legacy Go packages (v1)
+
 ├── docs/                   # Documentation
 └── version                 # v2.0.0
 ```

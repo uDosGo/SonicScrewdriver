@@ -45,25 +45,8 @@ SonicScrewdriver v2 is a **Universal USB Bootloader & System Toolkit** — Pytho
 | Plymouth theme | ✅ | Sonic bolt logo, progress bar |
 | Recovery tools | ✅ | disk-repair, password-reset, data-recovery, memtest |
 
-### Legacy Go v1 (cmd/sonic/)
-
-| Command | Status | Notes |
-|---------|--------|-------|
-| `sonic container` | ✅ | Preserved for backward compat |
-| `sonic vault` | ✅ | Preserved for backward compat |
-| `sonic gui` | ✅ | Preserved for backward compat |
-| `sonic catalogue` | ✅ | Preserved for backward compat |
-| `sonic knowledge` | ✅ | Preserved for backward compat |
-| `sonic library` | ✅ | Preserved for backward compat |
-| `sonic ventoy` | ✅ | Preserved for backward compat |
-| `sonic remote` | ✅ | Preserved for backward compat |
-| `sonic reflash` | ✅ | Preserved for backward compat |
-| `sonic driver` | ✅ | Preserved for backward compat |
-| `sonic recovery` | ✅ | Preserved for backward compat |
-
----
-
 ## 🎯 Next Steps
+
 
 ### Round 2 (v2.1.0)
 
@@ -99,5 +82,5 @@ SonicScrewdriver v2 is a **Universal USB Bootloader & System Toolkit** — Pytho
 - No unit tests for Python CLI modules
 - Bootloader requires gnu-efi to build (not installed on macOS)
 - 128GB reference USB not yet built (requires hardware)
-- Legacy Go v1 CLI has no CI pipeline
+
 
