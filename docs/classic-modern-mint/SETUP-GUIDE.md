@@ -1,16 +1,16 @@
 ---
 title: "Classic Modern Mint — Complete Setup Guide"
-status: draft
-last_updated: 2026-05-20T22:32:15+10:00
+status: needs-review
+last_updated: 2026-06-13
 category: guide
-tags: [guide, sonicscrewdriver]
-description: "> **Last Updated:** 2026-05-12"
+tags: [guide, sonicscrewdriver, needs-review]
+description: "> **Last Updated:** 2026-05-12 — Needs review against uServer snackbar + uCode2 prerelease"
 ---
 # Classic Modern Mint — Complete Setup Guide
 
 > **Version:** 1.0.0  
 > **Last Updated:** 2026-05-12  
-> **Status:** Production Ready  
+> **Status:** Needs Review — align with uServer snackbar structure + uCode2 prerelease  
 > **Target:** Linux Mint 21+ (Ubuntu-based)
 
 ---
