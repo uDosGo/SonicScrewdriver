@@ -102,4 +102,45 @@ const char *detect_platform_name(platform_type_t platform);
 /* Debug: dump SMBIOS info to teletext screen */
 void detect_debug_dump(void);
 
+/* -- Lifecycle state reporting (SonicScrewdriver v2.1) -- */
+
+/* Lifecycle state enum aligned to bootloader-status-taxonomy.md */
+typedef enum {
+    LIFECYCLE_INIT,
+    LIFECYCLE_DETECT,
+    LIFECYCLE_DETECT_COMPLETE,
+    LIFECYCLE_FRAMEBUFFER_INIT,
+    LIFECYCLE_FB_FALLBACK,
+    LIFECYCLE_CONFIG_LOAD,
+    LIFECYCLE_CONFIG_EMPTY,
+    LIFECYCLE_THEME_LOAD,
+    LIFECYCLE_THEME_DEFAULT,
+    LIFECYCLE_MENU_RENDER,
+    LIFECYCLE_MENU_TIMEOUT,
+    LIFECYCLE_CHAINLOAD_BEGIN,
+    LIFECYCLE_CHAINLOAD_FAIL,
+    LIFECYCLE_CHAINLOAD_SUCCESS,
+    LIFECYCLE_PANIC_OOB,
+    LIFECYCLE_PANIC_CORRUPT,
+    LIFECYCLE_HALT,
+} lifecycle_state_t;
+
+/* Report a lifecycle state transition with platform context.
+ * Called at each lifecycle stage to emit structured status
+ * suitable for spool event consumption (via serial or EFI var).
+ */
+void detect_report_lifecycle(lifecycle_state_t state);
+
+/* Get a short name for a lifecycle state (e.g. "detect_complete") */
+const char *detect_lifecycle_name(lifecycle_state_t state);
+
+/* Get the severity string: INFO, WARNING, ERROR, CRITICAL */
+const char *detect_lifecycle_severity(lifecycle_state_t state);
+
+/* Check if running on ARM64 (device-tree based detection) */
+int detect_is_arm64(void);
+
+/* Check if running on Apple Silicon (ARM64 + Apple device-tree) */
+int detect_is_apple_silicon(void);
+
 #endif /* DETECT_H */

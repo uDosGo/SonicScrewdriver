@@ -42,7 +42,8 @@ typedef enum {
     PLATFORM_MAC_UEFI,       /* Mac with UEFI (Intel + Apple Silicon) */
     PLATFORM_PC_UEFI,        /* PC with UEFI */
     PLATFORM_PC_BIOS,        /* PC with legacy BIOS */
-    PLATFORM_VIRTUAL         /* Virtual machine */
+    PLATFORM_VIRTUAL,        /* Virtual machine */
+    PLATFORM_ARM64           /* ARM64 (Apple Silicon, Raspberry Pi) */
 } platform_type_t;
 
 /* Menu configuration */

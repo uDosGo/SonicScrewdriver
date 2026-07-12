@@ -1,7 +1,8 @@
 {
   "name": "SonicScrewdriver",
   "folders": [
-    { "name": "SonicScrewdriver", "path": "." }
+    { "name": "SonicScrewdriver", "path": "." },
+    { "name": "uCore (shared services)", "path": "../uCore" },
   ],
   "settings": {
     "files.exclude": {
@@ -14,24 +15,24 @@
       "**/.git": true,
       "**/.pytest_cache": true,
       "**/.mypy_cache": true,
-      "**/.ruff_cache": true
+      "**/.ruff_cache": true,
     },
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
     "files.associations": {
       "ROADMAP.md": "markdown",
-      "*.yaml": "yaml"
+      "*.yaml": "yaml",
     },
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.terminal.activateEnvironment": true,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
   },
   "extensions": {
     "recommendations": [
       "ms-python.python",
       "yzhang.markdown-all-in-one",
       "charliermarsh.ruff",
-      "ms-vscode.makefile-tools"
-    ]
-  }
+      "ms-vscode.makefile-tools",
+    ],
+  },
 }

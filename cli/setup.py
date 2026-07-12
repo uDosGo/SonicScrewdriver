@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="sonic-screwdriver",
-    version="2.0.0",
+    version="2.1.0",
     description="Universal USB Bootloader & System Toolkit",
     author="uDosGo",
     url="https://github.com/uDosGo/SonicScrewdriver",
